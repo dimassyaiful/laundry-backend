@@ -26,3 +26,8 @@ $router->get('foo', function () {
 $router->group(['prefix' => 'api/module'], function () use ($router) {
     $router->get('/data', 'ModulController@index');
 });
+
+
+$router->group(['prefix' => 'auth'], function () use ($router) {
+    $router->post('/login', 'AuthController@login');
+});
