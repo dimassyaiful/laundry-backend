@@ -23,6 +23,13 @@ $router->get('foo', function () {
 
 // $router->get('/module', 'ModulController@index');
 
-$router->group(['prefix' => 'api/module'], function () use ($router) {
+
+//router module auth
+$router->group(['prefix' => 'auth'], function () use ($router) {
+    $router->post('/login', 'AuthController@login');
+});
+
+//router modul passport
+$router->group(['prefix' => 'api/module','middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'ModulController@index');
 });
