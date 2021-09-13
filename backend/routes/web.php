@@ -24,9 +24,11 @@ $router->get('foo', function () {
 // $router->get('/module', 'ModulController@index');
 
 
-//router module auth
-$router->group(['prefix' => 'auth'], function () use ($router) {
-    $router->post('/login', 'AuthController@login');
+//router module auth 
+$router->post('auth/login', 'AuthController@login');
+$router->group(['prefix' => 'auth','middleware' => 'passport'], function () use ($router) {
+    $router->post('/logout', 'AuthController@logout');
+    $router->post('/refreshPassport', 'AuthController@refreshPassport');
 });
 
 //router modul passport

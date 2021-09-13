@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use DB;
+use DateTime;
 
 class Passport
 {
@@ -15,17 +17,34 @@ class Passport
      */
     public function handle($request, Closure $next)
     {
-        // Pre-Middleware Action
+        // middleware passport disini gunanya untuk mengecek passport
+        // apakah akses user sudah bener atau belum
 
-        //main main aja
-        $password = '123'; 
-        $password_encrypted = password_hash($password, PASSWORD_BCRYPT);
-        dd($password_encrypted);
+        if (!$request->hasHeader('passport') || !$request->hasHeader('username')) {
+            return makeReturnJson(false,"Restricted Access",400); 
+        }
 
-        $response = $next($request);
+        $headerUsername = $request->header('username');
+        $headerPassport = $request->header('passport');
+        $isRefreshToken = $request->header('refreshPassport');
 
-        // Post-Middleware Action
+        $passport = DB::table('passport') 
+            ->where('username', $headerUsername)
+            ->where('passport', $headerPassport)
+            ->first();
+        
+        // jika passport tidak ditemukan, mungkin belum login
+        if(!$passport){
+            return makeReturnJson(false,"Passport Invalid",401);  
+        }
 
+        // jika passport ditemukan, cek apakah expired atau tidak
+        $date_now       = new DateTime();
+        $date_expired   = new DateTime($passport->expiry_date); 
+        if (!$isRefreshToken && $date_now > $date_expired) {
+            return makeReturnJson(false,"Expired Session",440);  
+        }  
+        $response = $next($request); 
         return $response;
     }
 }
