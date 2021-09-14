@@ -35,6 +35,7 @@ $router->group(['prefix' => 'auth','middleware' => 'passport'], function () use 
 $router->group(['prefix' => 'api/user','middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'UserController@index');
     $router->get('/data/{idUser}', 'UserController@userDetails');
+    $router->get('/username/{username}', 'UserController@cekUsername');
     $router->post('/insert', 'UserController@userInsert');
     $router->post('/update', 'UserController@userUpdate');
     $router->post('/delete', 'UserController@userDelete');

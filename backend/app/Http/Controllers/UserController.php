@@ -19,6 +19,17 @@ class UserController extends Controller
         $userData = UserQB::getSelectedData($idUser);
         return makeReturnJson(true, $userData);
     }
+ 
+    public function cekUsername(Request $request, $username)
+    {
+        $userData = UserQB::cekUsername($username);
+        $isExists = false;
+        if($userData){ 
+            //jika ditemukan maka return true
+            $isExists = true;
+        }
+        return makeReturnJson(true, ['isExists'=>$isExists]);
+    }
 
     public function userInsert(Request $request)
     {
