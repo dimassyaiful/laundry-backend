@@ -31,7 +31,11 @@ $router->group(['prefix' => 'auth','middleware' => 'passport'], function () use 
     $router->post('/refreshPassport', 'AuthController@refreshPassport');
 });
 
-//router modul passport
-$router->group(['prefix' => 'api/module','middleware' => 'passport'], function () use ($router) {
-    $router->get('/data', 'ModulController@index');
+//router user
+$router->group(['prefix' => 'api/user','middleware' => 'passport'], function () use ($router) {
+    $router->get('/data', 'UserController@index');
+    $router->get('/data/{idUser}', 'UserController@userDetails');
+    $router->post('/insert', 'UserController@userInsert');
+    $router->post('/update', 'UserController@userUpdate');
+    $router->post('/delete', 'UserController@userDelete');
 });

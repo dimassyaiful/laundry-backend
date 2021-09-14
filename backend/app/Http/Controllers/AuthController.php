@@ -9,7 +9,7 @@ use DateTime;
 
 class AuthController extends Controller
 {
-    public function login(Request $request){
+    public function login(Request $request){ 
 
         // validation         
         $data = $request->post();
@@ -20,15 +20,25 @@ class AuthController extends Controller
  
         if ($validator->fails()) { 
             $messages = $validator->errors(); 
-            return convertJson(false,$validator->errors()->first());
+            return makeReturnJson(false,$validator->errors()->first(),400);
         }
         
         //get data user
-        $user = DB::table('user')->where('username', $request->username)->first(); 
+        $user = DB::table('user')
+            ->select('user.*', 'jenis_user.jenis_user')
+            ->where('user.username', $request->username) 
+            ->where('user.is_active', 1) 
+            ->join('jenis_user', 'user.id_jenis_user', '=', 'jenis_user.id_jenis_user')
+            ->first(); 
         if(!$user){
             return makeReturnJson(false,"User tidak ditemukan",401); 
         }
 
+        $moduleAccess = DB::table('hak_akses')
+            ->select('id_modul') 
+            ->where('id_jenis_user', $user->id_jenis_user)   
+            ->get(); 
+         
         //verify password
         $passwordHash = $user->password;
         $verify = password_verify($request->password, $passwordHash); 
@@ -55,8 +65,11 @@ class AuthController extends Controller
                 'expiry_date' => $expiredDate,
             ]);
 
-             
+            
+            $user->password = null;
             $session = [
+                'userData'=>$user,
+                'moduleAccess'=>$moduleAccess,
                 'passport'=>$encrypted
             ];
             return makeReturnJson(true,$session,200);  

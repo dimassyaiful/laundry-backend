@@ -20,17 +20,19 @@ class Passport
         // middleware passport disini gunanya untuk mengecek passport
         // apakah akses user sudah bener atau belum
 
-        if (!$request->hasHeader('passport') || !$request->hasHeader('username')) {
+        if (!$request->hasHeader('id_user') || !$request->hasHeader('passport') || !$request->hasHeader('username')) {
             return makeReturnJson(false,"Restricted Access",400); 
         }
 
         $headerUsername = $request->header('username');
+        $headerUserId   = $request->header('id_user');
         $headerPassport = $request->header('passport');
         $isRefreshToken = $request->header('refreshPassport');
 
         $passport = DB::table('passport') 
             ->where('username', $headerUsername)
             ->where('passport', $headerPassport)
+            ->where('id_user', $headerUserId)
             ->first();
         
         // jika passport tidak ditemukan, mungkin belum login
