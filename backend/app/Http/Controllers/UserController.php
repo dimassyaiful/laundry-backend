@@ -37,7 +37,7 @@ class UserController extends Controller
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [
-                'id_jenis_user' => 'required|int',
+                'id_jenis_user' => 'required|numeric',
                 'username' => 'required',
             ]);
 

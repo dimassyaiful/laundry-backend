@@ -40,3 +40,13 @@ $router->group(['prefix' => 'api/user','middleware' => 'passport'], function () 
     $router->post('/update', 'UserController@userUpdate');
     $router->post('/delete', 'UserController@userDelete');
 });
+
+
+//router jenis laundry
+$router->group(['prefix' => 'api/jenislaundry','middleware' => 'passport'], function () use ($router) {
+    $router->get('/data', 'JenisLaundryController@index');
+    $router->get('/data/{id}', 'JenisLaundryController@details'); 
+    $router->post('/insert', 'JenisLaundryController@insert');
+    $router->post('/update', 'JenisLaundryController@update');
+    $router->post('/delete', 'JenisLaundryController@delete');
+});
