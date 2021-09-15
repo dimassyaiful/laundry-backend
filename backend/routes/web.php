@@ -41,7 +41,6 @@ $router->group(['prefix' => 'api/user','middleware' => 'passport'], function () 
     $router->post('/delete', 'UserController@userDelete');
 });
 
-
 //router jenis laundry
 $router->group(['prefix' => 'api/jenislaundry','middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'JenisLaundryController@index');
@@ -49,4 +48,14 @@ $router->group(['prefix' => 'api/jenislaundry','middleware' => 'passport'], func
     $router->post('/insert', 'JenisLaundryController@insert');
     $router->post('/update', 'JenisLaundryController@update');
     $router->post('/delete', 'JenisLaundryController@delete');
+});
+
+
+//router Customer
+$router->group(['prefix' => 'api/customer','middleware' => 'passport'], function () use ($router) {
+    $router->get('/data', 'CustomerController@index');
+    $router->get('/data/{id}', 'CustomerController@details'); 
+    $router->post('/insert', 'CustomerController@insert');
+    $router->post('/update', 'CustomerController@update');
+    $router->post('/delete', 'CustomerController@delete');
 });

@@ -1,29 +1,26 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
-use App\QueryBuilderClass\JenisLaundryQB;
+use App\QueryBuilderClass\CustomerQB;
 use DB;
 
-class JenisLaundryController extends Controller
+class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $data = JenisLaundryQB::getAllData();
+        $data = CustomerQB::getAllData();
         return makeReturnJson(true, $data);
     }
 
     public function details(Request $request, $id)
     {
         //get selected data
-        $data = JenisLaundryQB::getSelectedData($id); 
+        $data = CustomerQB::getSelectedData($id); 
         if(!$data){
             makeReturnJson(true, []);
-        }
-
-        //get status data
-        $statusData = JenisLaundryQB::getStatusData($data->status_order_array);
-        $data->status_order = $statusData; 
+        } 
 
         return makeReturnJson(true, $data);
     }
@@ -34,10 +31,9 @@ class JenisLaundryController extends Controller
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [ 
-                'jenis_laundry'     => 'required',
-                'uom'               => 'required',
-                'harga_per_uom'     => 'required|numeric',
-                'status_order_array'  => 'required',
+                'uuid_customer' => 'required',
+                'no_telp'  => 'required|numeric',
+                'nama'     => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -47,21 +43,21 @@ class JenisLaundryController extends Controller
 
             //prepare 
             $data = [ 
-                'jenis_laundry'     => $request->jenis_laundry,
-                'uom'               => $request->uom,
-                'harga_per_uom'     => $request->harga_per_uom,
-                'status_order_array'  => $request->status_order_array,
+                'uuid_customer' => $request->uuid_customer,
+                'no_telp'  => $request->no_telp,
+                'nama'     => $request->nama,
+                'alamat'  => $request->alamat, 
             ];
 
             // insert jenis laundry
             DB::beginTransaction();
-            $execute = JenisLaundryQB::insert($request->header('id_user'), $data);
+            $execute = CustomerQB::insert($request->header('id_user'), $data);
             if (!$execute) {
                 DB::rollBack();
-                return makeReturnJson(false, "Maaf, gagal menambahkan jenis laundry", 200);
+                return makeReturnJson(false, "Maaf, gagal menambahkan Customer", 200);
             }
             DB::commit();
-            return makeReturnJson(true, "Jenis Laundry berhasil ditambahkan", 200);
+            return makeReturnJson(true, "Customer berhasil ditambahkan", 200);
         } catch (\Exception $e) {
             return makeReturnJson(false, $e->getMessage());
         }
@@ -74,11 +70,9 @@ class JenisLaundryController extends Controller
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [ 
-                'id_jenis_laundry'  => 'required|numeric',
-                'jenis_laundry'     => 'required',
-                'uom'               => 'required',
-                'harga_per_uom'     => 'required|numeric',
-                'status_order_array'  => 'required',
+                'uuid_customer' => 'required',
+                'no_telp'  => 'required|numeric',
+                'nama'     => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -87,36 +81,34 @@ class JenisLaundryController extends Controller
             }
 
             //prepare 
-            $data = [ 
-                'jenis_laundry'     => $request->jenis_laundry,
-                'uom'               => $request->uom,
-                'harga_per_uom'     => $request->harga_per_uom,
-                'status_order_array'  => $request->status_order_array,
+            $data = [  
+                'no_telp'  => $request->no_telp,
+                'nama'     => $request->nama,
+                'alamat'  => $request->alamat, 
             ];
 
             // update
             DB::beginTransaction();
-            $execute = JenisLaundryQB::update($request->header('id_user'), $request->id_jenis_laundry, $data);
+            $execute = CustomerQB::update($request->header('id_user'), $request->uuid_customer, $data);
             if (!$execute) {
                 DB::rollBack();
-                return makeReturnJson(false, "Maaf, gagal mengubah jenis laundry", 200);
+                return makeReturnJson(false, "Maaf, gagal mengubah customer", 200);
             }
             DB::commit();
-            return makeReturnJson(true, "Jenis Laundry berhasil diubah", 200);
+            return makeReturnJson(true, "Customer berhasil diubah", 200);
         } catch (\Exception $e) {
             return makeReturnJson(false, $e->getMessage());
         }
     
     }
 
-    
     public function delete(Request $request)
     {
         try {
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [
-                'id_jenis_laundry' => 'required|int' 
+                'uuid_customer' => 'required' 
             ]);
 
             if ($validator->fails()) {
@@ -130,13 +122,13 @@ class JenisLaundryController extends Controller
             ];
 
             DB::beginTransaction();
-            $execute = JenisLaundryQB::delete($request->header('id_user'),$request->id_jenis_laundry, $data);
+            $execute = CustomerQB::delete($request->header('id_user'),$request->uuid_customer, $data);
             if (!$execute) {
                 DB::rollBack();
-                return makeReturnJson(false, "Maaf, gagal menghapus Jenis Laundry", 200);
+                return makeReturnJson(false, "Maaf, gagal menghapus Customer", 200);
             }
             DB::commit();
-            return makeReturnJson(true, "Jenis Laundry berhasil dihapus", 200);
+            return makeReturnJson(true, "Customer berhasil dihapus", 200);
         } catch (\Exception $e) {
             return makeReturnJson(false, $e->getMessage());
         }
