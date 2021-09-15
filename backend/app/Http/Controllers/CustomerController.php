@@ -133,4 +133,57 @@ class CustomerController extends Controller
             return makeReturnJson(false, $e->getMessage());
         }
     }
+
+    public function setInden(Request $request)
+    {
+        try {
+            // validation
+            $data = $request->post();
+            $validator = \Validator::make($data, [ 
+                'uuid_inden_history' => 'required',
+                'uuid_customer' => 'required',
+                'jumlah'  => 'required|numeric',  
+            ]);
+
+            if ($validator->fails()) {
+                $messages = $validator->errors();
+                return makeReturnJson(false, $validator->errors()->first(), 400);
+            }
+ 
+ 
+            DB::beginTransaction();
+
+            // update customer table
+            $data = [  
+                'inden'  => $request->jumlah
+            ]; 
+            $execute = CustomerQB::update($request->header('id_user'), $request->uuid_customer, $data);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah data inden customer", 200, "93904422-15c7-11ec-82a8-0242ac130003");
+            }
+
+            // add history inden
+            $jumlahString = number_format($request->jumlah);
+            $keterangan = $request->header('username')." Mengubah data inden menjadi $jumlahString";
+            $data = [  
+                'uuid_inden_history'  => $request->uuid_inden_history,
+                'uuid_customer'  => $request->uuid_customer,
+                'total'  => $request->jumlah,
+                'keterangan'  => $keterangan,
+            ]; 
+            $data['uuid_customer'] = $request->uuid_customer;
+            $execute = CustomerQB::addIndenHistory($request->header('id_user'),  $data);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah data inden customer", 200, "9b01d95a-15c7-11ec-82a8-0242ac130003");
+            }
+
+            DB::commit();
+            return makeReturnJson(true, "Data Inden berhasil diubah", 200);
+        } catch (\Exception $e) {
+            return makeReturnJson(false, $e->getMessage());
+        }
+    
+    }
 }

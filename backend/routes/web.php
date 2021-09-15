@@ -58,4 +58,5 @@ $router->group(['prefix' => 'api/customer','middleware' => 'passport'], function
     $router->post('/insert', 'CustomerController@insert');
     $router->post('/update', 'CustomerController@update');
     $router->post('/delete', 'CustomerController@delete');
+    $router->post('/setInden', 'CustomerController@setInden');
 });

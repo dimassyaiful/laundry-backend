@@ -1,10 +1,11 @@
 <?php
   
-function makeReturnJson($status, $message = "", $code = 200)
+function makeReturnJson($status, $message = "", $code = 200, $devMessage = "")
 {
     return response()->json([
         'isSuccess' => $status,
-        'message' => $message
+        'message' => $message,
+        'devMessage' => $devMessage,
     ], $code);
 }
 
