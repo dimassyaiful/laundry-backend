@@ -48,8 +48,30 @@ class UserQB
                 ->where('u.id_jenis_user', '<>', 1)
                 ->where('u.id_user', '=', $idUser)
                 ->join($tb_jenisUser, 'u.id_jenis_user', '=', 'j.id_jenis_user')
-                ->get();
+                ->first();
             return $user;
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            showExceptions($e->getMessage());
+            return [];
+        }
+    }
+
+    public static function getUsername($idUser)
+    {
+        $tb_user = self::$tb_user . " as u";
+        $tb_jenisUser = self::$tb_jenisUser . " as j";
+        try {
+            $user = DB::table($tb_user)
+                ->select('u.username') 
+                ->where('u.id_user', '=', $idUser) 
+                ->first();
+
+            if($user){
+                return $user->username; 
+            }else{
+                return false;
+            }
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             showExceptions($e->getMessage());

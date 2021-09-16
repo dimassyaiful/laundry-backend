@@ -116,7 +116,9 @@ class CustomerQB
         $updateInfo = getUpdateInfo($userInput);
         $updateData = array_merge($data, $updateInfo); 
         try {
-            return DB::table(self::$tb)->insert($insertData);
+            return DB::table(self::$tb)
+            ->where('uuid_task', $id)
+            ->update($updateData);
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             showExceptions($e->getMessage());

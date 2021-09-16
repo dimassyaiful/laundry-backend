@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\QueryBuilderClass\CustomerQB;
 use DB;
+use Ramsey\Uuid\Uuid;
 
 class CustomerController extends Controller
 {
@@ -49,7 +50,7 @@ class CustomerController extends Controller
                 'alamat'  => $request->alamat, 
             ];
 
-            // insert jenis laundry
+            // insert  
             DB::beginTransaction();
             $execute = CustomerQB::insert($request->header('id_user'), $data);
             if (!$execute) {
@@ -139,8 +140,7 @@ class CustomerController extends Controller
         try {
             // validation
             $data = $request->post();
-            $validator = \Validator::make($data, [ 
-                'uuid_inden_history' => 'required',
+            $validator = \Validator::make($data, [  
                 'uuid_customer' => 'required',
                 'jumlah'  => 'required|numeric',  
             ]);
@@ -164,10 +164,11 @@ class CustomerController extends Controller
             }
 
             // add history inden
+            $uuid_task_history = Uuid::uuid4()->toString();
             $jumlahString = number_format($request->jumlah);
             $keterangan = $request->header('username')." Mengubah data inden menjadi $jumlahString";
             $data = [  
-                'uuid_inden_history'  => $request->uuid_inden_history,
+                'uuid_inden_history'  => $uuid_task_history,
                 'uuid_customer'  => $request->uuid_customer,
                 'total'  => $request->jumlah,
                 'keterangan'  => $keterangan,

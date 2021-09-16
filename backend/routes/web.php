@@ -60,3 +60,15 @@ $router->group(['prefix' => 'api/customer','middleware' => 'passport'], function
     $router->post('/delete', 'CustomerController@delete');
     $router->post('/setInden', 'CustomerController@setInden');
 });
+
+
+//router Task
+$router->group(['prefix' => 'api/task','middleware' => 'passport'], function () use ($router) {
+    $router->get('/data', 'TaskController@index');
+    $router->get('/data/{id}', 'TaskController@details'); 
+    $router->post('/insert', 'TaskController@insert');
+    $router->post('/update', 'TaskController@update');
+    $router->post('/delete', 'TaskController@delete');
+    $router->post('/handover', 'TaskController@handover');
+    $router->post('/setStatus', 'TaskController@setStatus');
+});
