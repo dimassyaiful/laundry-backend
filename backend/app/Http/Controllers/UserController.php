@@ -124,6 +124,43 @@ class UserController extends Controller
         }
     }
 
+    public function userUpdatePassword(Request $request)
+    {
+        try {
+            // validation
+            $data = $request->post();
+            $validator = \Validator::make($data, [
+                'id_user' => 'required|numeric', 
+                'new_password' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $messages = $validator->errors();
+                return makeReturnJson(false, $validator->errors()->first(), 400);
+            }
+
+            //prepare
+            $defaultPassword = password_hash($request->new_password, PASSWORD_BCRYPT);
+            $userData = [
+                'password' => $defaultPassword
+            ];
+
+
+            // update user execute
+            DB::beginTransaction();
+            $execute = UserQB::update($request->header('id_user'), $request->id_user, $userData);
+             
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, User gagal diupdate", 200);
+            }
+            DB::commit();
+            return makeReturnJson(true, "User berhasil diupdate", 200);
+        } catch (\Exception $e) {
+            return makeReturnJson(false, $e->getMessage());
+        }
+    }
+
     public function userDelete(Request $request)
     {
         try {

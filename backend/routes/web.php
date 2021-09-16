@@ -39,6 +39,7 @@ $router->group(['prefix' => 'api/user','middleware' => 'passport'], function () 
     $router->post('/insert', 'UserController@userInsert');
     $router->post('/update', 'UserController@userUpdate');
     $router->post('/delete', 'UserController@userDelete');
+    $router->post('/updatePassword', 'UserController@userUpdatePassword');
 });
 
 //router jenis laundry
