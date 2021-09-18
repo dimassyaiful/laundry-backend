@@ -73,3 +73,13 @@ $router->group(['prefix' => 'api/task','middleware' => 'passport'], function () 
     $router->post('/handover', 'TaskController@handover');
     $router->post('/setStatus', 'TaskController@setStatus');
 });
+
+
+//router Task
+$router->group(['prefix' => 'api/laundry','middleware' => 'passport'], function () use ($router) {
+    $router->get('/data', 'LaundryController@index');
+    $router->get('/data/{id}', 'LaundryController@details'); 
+    $router->post('/insert', 'LaundryController@insert');
+    $router->post('/update', 'LaundryController@update');
+    $router->post('/delete', 'LaundryController@delete');  
+});

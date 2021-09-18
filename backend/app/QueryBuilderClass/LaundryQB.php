@@ -4,13 +4,13 @@ namespace App\QueryBuilderClass;
 use DB;
 use Log;
 
-class TaskQB
+class LaundryQB
 {
 
-    private static $tb = "task";  
-    private static $view = "view_task";  
+    private static $tb = "laundry";  
+    private static $view = "view_laundry";  
     private static $tbUser = "user";  
-    private static $tbHistory = "task_history";  
+    private static $tbHistory = "laundry_history";  
     private static $tbStatus = "status";  
 
     public static function getAllData()
@@ -23,26 +23,7 @@ class TaskQB
                 )
                 ->where('is_active', 1)  
                 ->limit(100)
-                ->orderBy("update_at", 'desc')
-                ->get(); 
-            return $data;
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
-            showExceptions($e->getMessage());
-            return [];
-        }
-    }
-
-    public static function getListTaskLaundry($uuidLaundry)
-    {
-        $tb = self::$view ; 
-        try {
-            $data = DB::table($tb)
-                ->select(
-                    '*'
-                )
-                ->where('is_active', 1)  
-                ->where('uuid_laundry', $uuidLaundry)  
+                ->orderBy("update_at", 'desc') 
                 ->get(); 
             return $data;
         } catch (\Exception $e) {
@@ -59,9 +40,8 @@ class TaskQB
             $data = DB::table($tb)
                 ->select(
                     '*'
-                )
-                ->where('is_active', 1)  
-                ->where('uuid_task', $id)  
+                ) 
+                ->where('uuid_laundry', $id)  
                 ->first(); 
             return $data;
         } catch (\Exception $e) {
@@ -69,25 +49,7 @@ class TaskQB
             showExceptions($e->getMessage());
             return [];
         }
-    }
-
-    public static function getStatusText($id)
-    {
-        $tb = self::$tbStatus ; 
-        try {
-            $data = DB::table($tb)
-                ->select(
-                    'keterangan'
-                )  
-                ->where('id_status', $id)  
-                ->first(); 
-            return $data->keterangan;
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
-            showExceptions($e->getMessage());
-            return [];
-        }
-    }
+    } 
 
     public static function getHistoryData($taskUuid)
     {
@@ -148,7 +110,7 @@ class TaskQB
         $updateData = array_merge($data, $updateInfo); 
         try {
             return DB::table(self::$tb)
-                ->where('uuid_task', $id)
+                ->where('uuid_laundry', $id)
                 ->update($updateData);
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -163,7 +125,7 @@ class TaskQB
         $updateData = array_merge($data, $updateInfo); 
         try {
             return DB::table(self::$tb)
-            ->where('uuid_task', $id)
+            ->where('uuid_laundry', $id)
             ->update($updateData);
         } catch (\Exception $e) {
             Log::info($e->getMessage());

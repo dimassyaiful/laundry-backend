@@ -93,7 +93,7 @@ class CustomerController extends Controller
             $execute = CustomerQB::update($request->header('id_user'), $request->uuid_customer, $data);
             if (!$execute) {
                 DB::rollBack();
-                return makeReturnJson(false, "Maaf, gagal mengubah customer", 200);
+                return makeReturnJson(false, "Maaf, gagal mengubah customer", 200,'27b7fc3c-18c8-11ec-9621-0242ac130002');
             }
             DB::commit();
             return makeReturnJson(true, "Customer berhasil diubah", 200);
