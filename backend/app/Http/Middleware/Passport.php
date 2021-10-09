@@ -3,8 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use DB;
 use DateTime;
+use DB;
 
 class Passport
 {
@@ -21,32 +21,32 @@ class Passport
         // apakah akses user sudah bener atau belum
 
         if (!$request->hasHeader('id_user') || !$request->hasHeader('passport') || !$request->hasHeader('username')) {
-            return makeReturnJson(false,"Restricted Access",400); 
+            return makeReturnJson(false, "Restricted Access", 400);
         }
 
         $headerUsername = $request->header('username');
-        $headerUserId   = $request->header('id_user');
+        $headerUserId = $request->header('id_user');
         $headerPassport = $request->header('passport');
         $isRefreshToken = $request->header('refreshPassport');
 
-        $passport = DB::table('passport') 
+        $passport = DB::table('passport')
             ->where('username', $headerUsername)
             ->where('passport', $headerPassport)
             ->where('id_user', $headerUserId)
             ->first();
-        
+
         // jika passport tidak ditemukan, mungkin belum login
-        if(!$passport){
-            return makeReturnJson(false,"Passport Invalid",401);  
+        if (!$passport) {
+            return makeReturnJson(false, "Maaf, silahkan login ulang", 401);
         }
 
         // jika passport ditemukan, cek apakah expired atau tidak
-        $date_now       = new DateTime();
-        $date_expired   = new DateTime($passport->expiry_date); 
+        $date_now = new DateTime();
+        $date_expired = new DateTime($passport->expiry_date);
         if (!$isRefreshToken && $date_now > $date_expired) {
-            return makeReturnJson(false,"Expired Session",440);  
-        }  
-        $response = $next($request); 
+            return makeReturnJson(false, "Expired Session", 440);
+        }
+        $response = $next($request);
         return $response;
     }
 }
