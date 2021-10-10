@@ -37,7 +37,7 @@ class Passport
 
         // jika passport tidak ditemukan, mungkin belum login
         if (!$passport) {
-            return makeReturnJson(false, "Maaf, silahkan login ulang", 401);
+            return makeReturnJson(false, "silahkan login ulang", 401);
         }
 
         // jika passport ditemukan, cek apakah expired atau tidak
