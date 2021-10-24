@@ -19,16 +19,16 @@ class UserController extends Controller
         $userData = UserQB::getSelectedData($idUser);
         return makeReturnJson(true, $userData);
     }
- 
+
     public function cekUsername(Request $request, $username)
     {
         $userData = UserQB::cekUsername($username);
         $isExists = false;
-        if($userData){ 
+        if ($userData) {
             //jika ditemukan maka return true
             $isExists = true;
         }
-        return makeReturnJson(true, ['isExists'=>$isExists]);
+        return makeReturnJson(true, ['isExists' => $isExists]);
     }
 
     public function userInsert(Request $request)
@@ -54,6 +54,11 @@ class UserController extends Controller
                 'password' => $defaultPassword,
                 'is_active' => 1,
             ];
+
+            $cekUser = UserQB::cekUsername($request->username);
+            if ($cekUser) {
+                return makeReturnJson(false, "Maaf, username sudah pernah digunakan", 400);
+            }
 
             // insert user execute
             DB::beginTransaction();
@@ -87,23 +92,23 @@ class UserController extends Controller
 
             //prepare
             $userData = [
-                'id_jenis_user' => $request->id_jenis_user 
+                'id_jenis_user' => $request->id_jenis_user,
             ];
 
             // cek username
             //cek apakah username telah tersedia
-            $cekUsername = UserQB::cekUsername($request->username); 
-            
-            if(!$cekUsername){
+            $cekUsername = UserQB::cekUsername($request->username);
+
+            if (!$cekUsername) {
                 //username belum digunakan
                 $userData['username'] = $request->username;
-              } else if($cekUsername && $cekUsername->id_user == $request->id_user){
+            } else if ($cekUsername && $cekUsername->id_user == $request->id_user) {
                 //username sudah digunakan tapi oleh user itu sendiri
                 //skip
-              } else if($cekUsername){
+            } else if ($cekUsername) {
                 //atau username sudah digunakan
                 return makeReturnJson(false, "Maaf, Username sudah digunakan", 200);
-              }  
+            }
             //if changing password
             if (isset($request->password)) {
                 $userData['password'] = password_hash($request->password, PASSWORD_BCRYPT);
@@ -112,7 +117,7 @@ class UserController extends Controller
             // update user execute
             DB::beginTransaction();
             $execute = UserQB::update($request->header('id_user'), $request->id_user, $userData);
-             
+
             if (!$execute) {
                 DB::rollBack();
                 return makeReturnJson(false, "Maaf, User gagal diupdate", 200);
@@ -130,7 +135,7 @@ class UserController extends Controller
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [
-                'id_user' => 'required|numeric', 
+                'id_user' => 'required|numeric',
                 'new_password' => 'required',
             ]);
 
@@ -142,14 +147,13 @@ class UserController extends Controller
             //prepare
             $defaultPassword = password_hash($request->new_password, PASSWORD_BCRYPT);
             $userData = [
-                'password' => $defaultPassword
+                'password' => $defaultPassword,
             ];
-
 
             // update user execute
             DB::beginTransaction();
             $execute = UserQB::update($request->header('id_user'), $request->id_user, $userData);
-             
+
             if (!$execute) {
                 DB::rollBack();
                 return makeReturnJson(false, "Maaf, User gagal diupdate", 200);
@@ -167,21 +171,21 @@ class UserController extends Controller
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [
-                'id_user' => 'required|int' 
+                'id_user' => 'required|int',
             ]);
 
             if ($validator->fails()) {
                 $messages = $validator->errors();
                 return makeReturnJson(false, $validator->errors()->first(), 400);
-            } 
+            }
 
             // make user active = 0
             $userData = [
-                'is_active' => 0 
+                'is_active' => 0,
             ];
 
             DB::beginTransaction();
-            $execute = UserQB::delete($request->header('id_user'),$request->id_user, $userData);
+            $execute = UserQB::delete($request->header('id_user'), $request->id_user, $userData);
             if (!$execute) {
                 DB::rollBack();
                 return makeReturnJson(false, "Maaf, gagal menghapus user", 200);
