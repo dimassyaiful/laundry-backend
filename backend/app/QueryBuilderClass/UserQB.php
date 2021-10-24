@@ -20,6 +20,7 @@ class UserQB
                     'u.id_user',
                     'u.username',
                     'u.is_active',
+                    'j.id_jenis_user',
                     'j.jenis_user')
                 ->where('u.is_active', 1)
                 ->where('u.id_jenis_user', '<>', 1)
@@ -63,13 +64,13 @@ class UserQB
         $tb_jenisUser = self::$tb_jenisUser . " as j";
         try {
             $user = DB::table($tb_user)
-                ->select('u.username') 
-                ->where('u.id_user', '=', $idUser) 
+                ->select('u.username')
+                ->where('u.id_user', '=', $idUser)
                 ->first();
 
-            if($user){
-                return $user->username; 
-            }else{
+            if ($user) {
+                return $user->username;
+            } else {
                 return false;
             }
         } catch (\Exception $e) {
@@ -81,13 +82,13 @@ class UserQB
 
     public static function cekUsername($username)
     {
-        $tb_user = self::$tb_user; 
+        $tb_user = self::$tb_user;
         try {
             $validation = DB::table($tb_user)
-                ->select('id_user', 'username')  
-                ->where('username', '=', $username) 
+                ->select('id_user', 'username')
+                ->where('username', '=', $username)
                 ->first();
-            
+
             return $validation;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -112,7 +113,7 @@ class UserQB
     public static function update($userInput, $userId, $userData)
     {
         $updateInfo = getUpdateInfo($userInput);
-        $updateData = array_merge($userData, $updateInfo); 
+        $updateData = array_merge($userData, $updateInfo);
         try {
             return DB::table('user')
                 ->where('id_user', $userId)
@@ -124,11 +125,10 @@ class UserQB
         }
     }
 
-    
     public static function delete($userInput, $userId, $userData)
     {
         $updateInfo = getUpdateInfo($userInput);
-        $updateData = array_merge($userData, $updateInfo); 
+        $updateData = array_merge($userData, $updateInfo);
         try {
             return DB::table('user')
                 ->where('id_user', $userId)
