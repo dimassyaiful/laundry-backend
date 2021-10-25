@@ -29,6 +29,17 @@ class JenisLaundryController extends Controller
         return makeReturnJson(true, $data);
     }
 
+    public function status_laundry(Request $request)
+    {
+        //get selected data
+        $data = JenisLaundryQB::getAllStatusData();
+        if (!isset($data)) {
+            return makeReturnJson(true, []);
+        }
+
+        return makeReturnJson(true, $data);
+    }
+
     public function insert(Request $request)
     {
         try {

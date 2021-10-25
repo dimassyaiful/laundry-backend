@@ -11,7 +11,7 @@
 | It is a breeze. Simply tell Lumen the URIs it should respond to
 | and give it the Closure to call when that URI is requested.
 |
-*/
+ */
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
@@ -23,16 +23,15 @@ $router->get('foo', function () {
 
 // $router->get('/module', 'ModulController@index');
 
-
-//router module auth 
+//router module auth
 $router->post('auth/login', 'AuthController@login');
-$router->group(['prefix' => 'auth','middleware' => 'passport'], function () use ($router) {
+$router->group(['prefix' => 'auth', 'middleware' => 'passport'], function () use ($router) {
     $router->post('/logout', 'AuthController@logout');
     $router->post('/refreshPassport', 'AuthController@refreshPassport');
 });
 
 //router user
-$router->group(['prefix' => 'api/user','middleware' => 'passport'], function () use ($router) {
+$router->group(['prefix' => 'api/user', 'middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'UserController@index');
     $router->get('/data/{idUser}', 'UserController@userDetails');
     $router->get('/username/{username}', 'UserController@cekUsername');
@@ -43,30 +42,29 @@ $router->group(['prefix' => 'api/user','middleware' => 'passport'], function () 
 });
 
 //router jenis laundry
-$router->group(['prefix' => 'api/jenislaundry','middleware' => 'passport'], function () use ($router) {
+$router->group(['prefix' => 'api/jenislaundry', 'middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'JenisLaundryController@index');
-    $router->get('/data/{id}', 'JenisLaundryController@details'); 
+    $router->get('/data/{id}', 'JenisLaundryController@details');
     $router->post('/insert', 'JenisLaundryController@insert');
     $router->post('/update', 'JenisLaundryController@update');
     $router->post('/delete', 'JenisLaundryController@delete');
+    $router->get('/status', 'JenisLaundryController@status_laundry');
 });
 
-
 //router Customer
-$router->group(['prefix' => 'api/customer','middleware' => 'passport'], function () use ($router) {
+$router->group(['prefix' => 'api/customer', 'middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'CustomerController@index');
-    $router->get('/data/{id}', 'CustomerController@details'); 
+    $router->get('/data/{id}', 'CustomerController@details');
     $router->post('/insert', 'CustomerController@insert');
     $router->post('/update', 'CustomerController@update');
     $router->post('/delete', 'CustomerController@delete');
     $router->post('/setInden', 'CustomerController@setInden');
 });
 
-
 //router Task
-$router->group(['prefix' => 'api/task','middleware' => 'passport'], function () use ($router) {
+$router->group(['prefix' => 'api/task', 'middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'TaskController@index');
-    $router->get('/data/{id}', 'TaskController@details'); 
+    $router->get('/data/{id}', 'TaskController@details');
     $router->post('/insert', 'TaskController@insert');
     $router->post('/update', 'TaskController@update');
     $router->post('/delete', 'TaskController@delete');
@@ -74,12 +72,11 @@ $router->group(['prefix' => 'api/task','middleware' => 'passport'], function () 
     $router->post('/setStatus', 'TaskController@setStatus');
 });
 
-
-//router Task
-$router->group(['prefix' => 'api/laundry','middleware' => 'passport'], function () use ($router) {
+//router laundry
+$router->group(['prefix' => 'api/laundry', 'middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'LaundryController@index');
-    $router->get('/data/{id}', 'LaundryController@details'); 
+    $router->get('/data/{id}', 'LaundryController@details');
     $router->post('/insert', 'LaundryController@insert');
     $router->post('/update', 'LaundryController@update');
-    $router->post('/delete', 'LaundryController@delete');  
+    $router->post('/delete', 'LaundryController@delete');
 });

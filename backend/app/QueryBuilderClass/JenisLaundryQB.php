@@ -53,6 +53,27 @@ class JenisLaundryQB
         }
     }
 
+    public static function getAllStatusData()
+    {
+        $tb = self::$tbStatus . " as s";
+        try {
+            $data = DB::table($tb)
+                ->select(
+                    's.id_status',
+                    's.keterangan',
+                    's.icon_material as icon',
+                )
+                ->orderBy('id_status', "asc")
+                ->get();
+
+            return $data;
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            showExceptions($e->getMessage());
+            return [];
+        }
+    }
+
     public static function getStatusData($statusString)
     {
         $statusArr = explode(',', $statusString);
