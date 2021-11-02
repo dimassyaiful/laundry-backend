@@ -7,15 +7,15 @@ use Log;
 class CustomerQB
 {
 
-    private static $tb = "customer";  
-    private static $tbIndenHistory = "customer_inden_history";  
+    private static $tb = "customer";
+    private static $tbIndenHistory = "customer_inden_history";
 
     public static function getAllData()
     {
-        $tb = self::$tb . " as c"; 
+        $tb = self::$tb . " as c";
         try {
             $data = DB::table($tb)
-                ->select( 
+                ->select(
                     'c.uuid_customer',
                     'c.no_telp',
                     'c.nama',
@@ -24,8 +24,8 @@ class CustomerQB
                     'c.update_at',
                     'c.update_by'
                 )
-                ->where('is_active', 1)  
-                ->get(); 
+                ->where('is_active', 1)
+                ->get();
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -36,22 +36,22 @@ class CustomerQB
 
     public static function getSelectedData($id)
     {
-        $tb = self::$tb . " as c"; ; 
+        $tb = self::$tb . " as c";
         try {
             $data = DB::table($tb)
                 ->select(
-                'c.uuid_customer',
-                'c.no_telp',
-                'c.nama',
-                'c.alamat',
-                'c.inden',
-                'c.update_at',
-                'c.update_by'
+                    'c.uuid_customer',
+                    'c.no_telp',
+                    'c.nama',
+                    'c.alamat',
+                    'c.inden',
+                    'c.update_at',
+                    'c.update_by'
                 )
-                ->where('c.is_active', 1)  
-                ->where('c.uuid_customer', $id)  
+                ->where('c.is_active', 1)
+                ->where('c.uuid_customer', $id)
                 ->first();
-            
+
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -60,21 +60,21 @@ class CustomerQB
         }
     }
 
-    public static function getStatusData($statusString)
-    { 
-        $statusArr = explode(',', $statusString);
-        $tb = self::$tbStatus . " as s"; 
+    public static function getIndenHistory($id)
+    {
+        $tb = self::$tbIndenHistory . " as c";
         try {
             $data = DB::table($tb)
                 ->select(
-                    's.id_status',
-                    's.keterangan',
-                    's.icon_material as icon',
-                ) 
-                ->whereIn('id_status', $statusArr)
-                ->orderByRaw("FIELD(id_status,$statusString)")
+                    'c.uuid_inden_history',
+                    'c.total',
+                    'c.keterangan',
+                    'c.insert_at',
+                )
+                ->where('c.uuid_customer', $id)
+                ->orderBy('c.insert_at', 'desc')
                 ->get();
-            
+
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -99,7 +99,7 @@ class CustomerQB
     public static function update($userInput, $id, $data)
     {
         $updateInfo = getUpdateInfo($userInput);
-        $updateData = array_merge($data, $updateInfo); 
+        $updateData = array_merge($data, $updateInfo);
         try {
             return DB::table(self::$tb)
                 ->where('uuid_customer', $id)
@@ -114,11 +114,11 @@ class CustomerQB
     public static function delete($userInput, $id, $data)
     {
         $updateInfo = getUpdateInfo($userInput);
-        $updateData = array_merge($data, $updateInfo); 
+        $updateData = array_merge($data, $updateInfo);
         try {
             return DB::table(self::$tb)
-            ->where('uuid_task', $id)
-            ->update($updateData);
+                ->where('uuid_customer', $id)
+                ->update($updateData);
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             showExceptions($e->getMessage());
@@ -126,7 +126,6 @@ class CustomerQB
         }
     }
 
-    
     public static function addIndenHistory($userInput, $data)
     {
         $insertInfo = getInsertUpdateInfo($userInput);
@@ -139,6 +138,5 @@ class CustomerQB
             return false;
         }
     }
-     
- 
+
 }

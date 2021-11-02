@@ -58,11 +58,13 @@ class JenisLaundryController extends Controller
             }
 
             //prepare
+            $order = json_encode($request->status_order_array);
+
             $data = [
                 'jenis_laundry' => $request->jenis_laundry,
                 'uom' => $request->uom,
                 'harga_per_uom' => $request->harga_per_uom,
-                'status_order_array' => $request->status_order_array,
+                'status_order_array' => $order,
             ];
 
             // insert jenis laundry
@@ -75,7 +77,7 @@ class JenisLaundryController extends Controller
             DB::commit();
             return makeReturnJson(true, "Jenis Laundry berhasil ditambahkan", 200);
         } catch (\Exception $e) {
-            return makeReturnJson(false, $e->getMessage());
+            return makeReturnJson(false, $e->getMessage(), 500);
         }
 
     }

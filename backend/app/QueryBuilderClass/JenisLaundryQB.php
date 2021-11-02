@@ -20,6 +20,7 @@ class JenisLaundryQB
                     'j.jenis_laundry',
                     'j.harga_per_uom',
                     'j.uom',
+                    'j.status_order_array',
                     'j.update_at',
                     'j.update_by',
                 )
@@ -57,14 +58,35 @@ class JenisLaundryQB
     {
         $tb = self::$tbStatus . " as s";
         try {
-            $data = DB::table($tb)
+            $data1 = DB::table($tb)
                 ->select(
                     's.id_status',
                     's.keterangan',
                     's.icon_material as icon',
                 )
+                ->whereNotIn('s.id_status', [0, 1])
                 ->orderBy('id_status', "asc")
                 ->get();
+
+            $data2 = DB::table($tb)
+                ->select(
+                    's.id_status',
+                    's.keterangan',
+                    's.icon_material as icon',
+                )
+                ->whereIn('s.id_status', [0, 1])
+                ->orderBy('id_status', "asc")
+                ->get();
+
+            $data = [];
+            foreach ($data2 as $row => $value) {
+                array_push($data, $value);
+                if ($row == 0) {
+                    foreach ($data1 as $idx => $val) {
+                        array_push($data, $val);
+                    }
+                }
+            }
 
             return $data;
         } catch (\Exception $e) {
@@ -102,7 +124,8 @@ class JenisLaundryQB
         $insertInfo = getInsertUpdateInfo($userInput);
         $insertData = array_merge($data, $insertInfo);
         try {
-            return DB::table(self::$tb)->insert($insertData);
+            $stats = DB::table(self::$tb)->insert($insertData);
+            return $stats;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             showExceptions($e->getMessage());
