@@ -25,6 +25,7 @@ class JenisLaundryQB
                     'j.update_by',
                 )
                 ->where('j.is_active', 1)
+                ->orderBy('j.jenis_laundry', 'ASC')
                 ->get();
             return $data;
         } catch (\Exception $e) {
@@ -65,6 +66,7 @@ class JenisLaundryQB
                     's.icon_material as icon',
                 )
                 ->whereNotIn('s.id_status', [0, 1])
+                ->where('type', 'task_status')
                 ->orderBy('id_status', "asc")
                 ->get();
 

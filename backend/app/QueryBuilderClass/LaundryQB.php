@@ -7,24 +7,61 @@ use Log;
 class LaundryQB
 {
 
-    private static $tb = "laundry";  
-    private static $view = "view_laundry";  
-    private static $tbUser = "user";  
-    private static $tbHistory = "laundry_history";  
-    private static $tbStatus = "status";  
+    private static $tb = "laundry";
+    private static $view = "view_laundry";
+    private static $tbUser = "user";
+    private static $tbHistory = "laundry_history";
+    private static $tbStatus = "status";
 
-    public static function getAllData()
+    public static function getAllStatus()
     {
-        $tb = self::$view; 
+        $tb = self::$tbStatus;
+        try {
+            $data = DB::table($tb)->select('*')->get();
+            $statusId = [];
+            $statusNama = [];
+            foreach ($data as $key => $value) {
+                array_push($statusId, $value->id_status);
+                array_push($statusNama, $value->keterangan);
+            }
+            return array(
+                'idStatus' => $statusId,
+                'ketStatus' => $statusNama,
+            );
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            showExceptions($e->getMessage());
+            return [];
+        }
+    }
+
+    public static function getStatus()
+    {
+        $tb = self::$tbStatus;
+        try {
+            $data = DB::table($tb)->select('*')->get();
+            return $data;
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            return [];
+        }
+    }
+
+    public static function getAllData($startDate, $endDate)
+    {
+        $tb = self::$view;
+
         try {
             $data = DB::table($tb)
-                ->select( 
+                ->select(
                     '*'
                 )
-                ->where('is_active', 1)  
-                ->limit(100)
-                ->orderBy("update_at", 'desc') 
-                ->get(); 
+                ->where('is_active', 1)
+                ->whereDate('tanggal_masuk', '>=', $startDate)
+                ->whereDate('tanggal_masuk', '<=', $endDate)
+                ->limit(50)
+                ->orderBy("update_at", 'desc')
+                ->get();
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -35,39 +72,39 @@ class LaundryQB
 
     public static function getSelectedData($id)
     {
-        $tb = self::$view ; 
+        $tb = self::$view;
         try {
             $data = DB::table($tb)
                 ->select(
                     '*'
-                ) 
-                ->where('uuid_laundry', $id)  
-                ->first(); 
+                )
+                ->where('uuid_laundry', $id)
+                ->first();
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             showExceptions($e->getMessage());
             return [];
         }
-    } 
+    }
 
     public static function getHistoryData($taskUuid)
     {
         $tb = self::$tbHistory . " as h";
-        $tbUser = self::$tbUser . " as u"; 
+        $tbUser = self::$tbUser . " as u";
         try {
             $data = DB::table($tb)
                 ->select(
                     'h.keterangan',
                     'h.insert_at',
-                    'u.username as insert_by' 
+                    'u.username as insert_by'
                 )
-                ->join($tbUser,'u.id_user','=','h.insert_by')  
-                ->where('h.uuid_task', $taskUuid)  
-                ->orderBy('h.insert_at','desc')
-                ->get(); 
-            if(!$data){
-                return []; 
+                ->join($tbUser, 'u.id_user', '=', 'h.insert_by')
+                ->where('h.uuid_task', $taskUuid)
+                ->orderBy('h.insert_at', 'desc')
+                ->get();
+            if (!$data) {
+                return [];
             }
             return $data;
         } catch (\Exception $e) {
@@ -76,7 +113,7 @@ class LaundryQB
             return [];
         }
     }
-  
+
     public static function insert($userInput, $data)
     {
         $insertInfo = getInsertUpdateInfo($userInput);
@@ -90,7 +127,6 @@ class LaundryQB
         }
     }
 
-    
     public static function insertHistory($userInput, $data)
     {
         $insertInfo = getInsertUpdateInfo($userInput);
@@ -107,7 +143,7 @@ class LaundryQB
     public static function update($userInput, $id, $data)
     {
         $updateInfo = getUpdateInfo($userInput);
-        $updateData = array_merge($data, $updateInfo); 
+        $updateData = array_merge($data, $updateInfo);
         try {
             return DB::table(self::$tb)
                 ->where('uuid_laundry', $id)
@@ -122,11 +158,11 @@ class LaundryQB
     public static function delete($userInput, $id, $data)
     {
         $updateInfo = getUpdateInfo($userInput);
-        $updateData = array_merge($data, $updateInfo); 
+        $updateData = array_merge($data, $updateInfo);
         try {
             return DB::table(self::$tb)
-            ->where('uuid_laundry', $id)
-            ->update($updateData);
+                ->where('uuid_laundry', $id)
+                ->update($updateData);
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             showExceptions($e->getMessage());
@@ -134,7 +170,4 @@ class LaundryQB
         }
     }
 
-     
-     
- 
 }

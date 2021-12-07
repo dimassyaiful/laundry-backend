@@ -12,7 +12,49 @@ class LaundryController extends Controller
 {
     public function index(Request $request)
     {
-        $data = LaundryQB::getAllData();
+        $startDate = $request->tanggalMasuk;
+        $endDate = $request->tanggalKeluar;
+
+        if (!$startDate) {
+            $startDate = date('Y-m-d', strtotime('today - 30 days'));
+            $endDate = date('Y-m-d');
+        }
+
+        $dataStatus = LaundryQB::getAllStatus();
+        $listIdStatus = $dataStatus['idStatus'];
+        $listKetStatus = $dataStatus['ketStatus'];
+
+        $data = LaundryQB::getAllData($startDate, $endDate);
+        $returnData = [];
+        foreach ($data as $key => $val) {
+            $dataLaundry = $val;
+
+            // Cari Task
+            $dataTask = TaskQB::getListTaskLaundry($val->uuid_laundry);
+
+            // Cari Status laundry
+            $idx = array_search($dataLaundry->status_laundry, $listIdStatus);
+            $statusLaundry = $listKetStatus[$idx];
+
+            // Cari Status Bayar
+            $idx = array_search($dataLaundry->status_bayar, $listIdStatus);
+            $statusBayar = $listKetStatus[$idx];
+
+            $dataLaundry->task_data = $dataTask;
+            $dataLaundry->status_laundry_ket = $statusLaundry;
+            $dataLaundry->status_bayar_ket = $statusBayar;
+            array_push($returnData, $dataLaundry);
+        }
+        return makeReturnJson(true, $returnData);
+    }
+
+    public function getAllStatus(Request $request)
+    {
+        //get selected data laundry
+        $data = LaundryQB::getStatus();
+        if (!$data) {
+            makeReturnJson(true, []);
+        }
         return makeReturnJson(true, $data);
     }
 
@@ -115,7 +157,7 @@ class LaundryController extends Controller
             $validator = \Validator::make($data, [
                 'uuid_laundry' => 'required',
                 'uuid_customer' => 'required',
-                'tanggal_masuk' => 'required', 
+                'tanggal_masuk' => 'required',
                 'status_bayar' => 'required|numeric',
             ]);
 
@@ -168,17 +210,17 @@ class LaundryController extends Controller
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [
-                'uuid_laundry' => 'required'   
+                'uuid_laundry' => 'required',
             ]);
 
             if ($validator->fails()) {
                 $messages = $validator->errors();
                 return makeReturnJson(false, $validator->errors()->first(), 400);
-            } 
+            }
 
             // make active = 0
             $data = [
-                'is_active' => 0 
+                'is_active' => 0,
             ];
 
             $uuid_task_history = Uuid::uuid4()->toString();
@@ -191,13 +233,13 @@ class LaundryController extends Controller
 
             DB::beginTransaction();
             //hapus data task
-            $execute = LaundryQB::delete($request->header('id_user'),$request->uuid_laundry, $data);
+            $execute = LaundryQB::delete($request->header('id_user'), $request->uuid_laundry, $data);
             if (!$execute) {
                 DB::rollBack();
                 return makeReturnJson(false, "Maaf, gagal menghapus Laundry", 200, "53f6fdf6-18c9-11ec-9621-0242ac130002");
-            } 
+            }
 
-            // insert task history 
+            // insert task history
             $execute = LaundryQB::insertHistory($request->header('id_user'), $dataLaundryHistory);
             if (!$execute) {
                 DB::rollBack();
