@@ -12,25 +12,47 @@ class LaundryController extends Controller
 {
     public function index(Request $request)
     {
-        $startDate = $request->tanggalMasuk;
-        $endDate = $request->tanggalKeluar;
+        $startDate = $request->tanggal_masuk;
+        $endDate = $request->tanggal_masuk2;
+        $status = $request->status;
+        $statusBayar = $request->status_bayar;
+        $customerName = $request->customer_name;
+        $jenis_laundry = $request->jenis_laundry;
+        
+        // print_r($request->request);
+        // exit;
 
         if (!$startDate) {
             $startDate = date('Y-m-d', strtotime('today - 30 days'));
+        }
+        if (!$endDate) {
             $endDate = date('Y-m-d');
         }
+            
 
         $dataStatus = LaundryQB::getAllStatus();
         $listIdStatus = $dataStatus['idStatus'];
         $listKetStatus = $dataStatus['ketStatus'];
 
-        $data = LaundryQB::getAllData($startDate, $endDate);
+        $data = LaundryQB::getAllData($startDate, $endDate, $status, $statusBayar, $customerName);
         $returnData = [];
         foreach ($data as $key => $val) {
             $dataLaundry = $val;
 
-            // Cari Task
-            $dataTask = TaskQB::getListTaskLaundry($val->uuid_laundry);
+            // Cari Task 
+            $dataTask = TaskQB::getListTaskLaundry($val->uuid_laundry,$jenis_laundry); 
+
+            if(isset($jenis_laundry) && $jenis_laundry != ''){
+                $count = 0;
+                foreach ($dataTask as $row) {
+                    if($row->id_jenis_laundry == $jenis_laundry){
+                        $count = 1;
+                    }
+                }
+                if($count < 1){
+                    continue;
+                }
+            }
 
             // Cari Status laundry
             $idx = array_search($dataLaundry->status_laundry, $listIdStatus);
@@ -94,14 +116,18 @@ class LaundryController extends Controller
 
             //prepare
             $dataLaundry = $request->laundryData;
+            $idLaundry = LaundryQB::getMaxid() + 1;
+            $dataLaundry['id'] = $idLaundry;  
+
+
             $dataTask = $request->taskData;
             $keterangan = "Laundry Baru Telah Ditambahkan";
             $uuid_task_history = Uuid::uuid4()->toString();
-            $dataLaundryHistory = [
+            $dataLaundryHistory = [ 
                 'uuid_laundry_history' => $uuid_task_history,
                 'uuid_laundry' => $dataLaundry['uuid_laundry'],
                 'keterangan' => $keterangan,
-            ];
+            ]; 
 
             DB::beginTransaction();
 
@@ -118,7 +144,8 @@ class LaundryController extends Controller
             }
 
             // insert task & history
-            foreach ($dataTask as $row) {
+            foreach ($dataTask as $rows) {
+            $row = json_decode($rows,true);  
                 $uuid_task_history = Uuid::uuid4()->toString();
                 $dataHistory = [
                     'uuid_task_history' => $uuid_task_history,
@@ -126,7 +153,7 @@ class LaundryController extends Controller
                     'status_from' => null,
                     'status_to' => 0,
                     'keterangan' => "List Cucian Telah Ditambahkan",
-                ];
+                ]; 
 
                 // insert task
                 $execute = TaskQB::insert($request->header('id_user'), $row);

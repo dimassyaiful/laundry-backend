@@ -584,24 +584,41 @@ SET character_set_client = @saved_cs_client;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `setStatusLaundry`(IN xuuid_laundry VARCHAR(100))
-BEGIN
-     DECLARE total_task,task_completed,new_status INT;
-
-    select (select count(uuid_task) from task where uuid_laundry=xuuid_laundry) as total_task , 
-    (select count(uuid_task) from task where uuid_laundry=xuuid_laundry and status_task=1) as total_completed
-    into total_task, task_completed;
-   	
-   	# to debug variable SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = task_completed;
-   	# Cek Apakah task selesai = total task, jika sama berarti status laundry jadi 1
-   	IF (total_task = task_completed) THEN
-    	set new_status = 1;
-   	else
-    	set new_status = 0;
-  	END IF;
-    
- 	#update
-   	update laundry set status_laundry=new_status where uuid_laundry = xuuid_laundry;
+CREATE PROCEDURE `setStatusLaundry`(IN xuuid_laundry VARCHAR(100))
+BEGIN
+
+     DECLARE total_task,task_completed,new_status INT;
+
+
+
+    select (select count(uuid_task) from task where uuid_laundry=xuuid_laundry) as total_task , 
+
+    (select count(uuid_task) from task where uuid_laundry=xuuid_laundry and status_task=1) as total_completed
+
+    into total_task, task_completed;
+
+   	
+
+   	# to debug variable SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = task_completed;
+
+   	# Cek Apakah task selesai = total task, jika sama berarti status laundry jadi 1
+
+   	IF (total_task = task_completed) THEN
+
+    	set new_status = 1;
+
+   	else
+
+    	set new_status = 0;
+
+  	END IF;
+
+    
+
+ 	#update
+
+   	update laundry set status_laundry=new_status where uuid_laundry = xuuid_laundry;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;

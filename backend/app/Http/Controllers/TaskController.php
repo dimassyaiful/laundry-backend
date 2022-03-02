@@ -168,8 +168,7 @@ class TaskController extends Controller
             // validation
             $data = $request->post();
             $validator = \Validator::make($data, [
-                'uuid_task' => 'required' ,
-                'status' => 'required' ,
+                'uuid_task' => 'required' , 
 
             ]);
 
@@ -187,9 +186,7 @@ class TaskController extends Controller
             $keterangan = "List Cucian Berhasil Dihapus";
             $dataHistory = [ 
                 'uuid_task_history' => $uuid_task_history,
-                'uuid_task'         => $request->uuid_task, 
-                'status_from'       => $request->status, 
-                'status_to'         => $request->status, 
+                'uuid_task'         => $request->uuid_task,  
                 'keterangan'        => $keterangan
             ];
 

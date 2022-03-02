@@ -47,12 +47,12 @@ class LaundryQB
         }
     }
 
-    public static function getAllData($startDate, $endDate)
+    public static function getAllData($startDate, $endDate , $status=null, $statusBayar=null, $customerName=null)
     {
         $tb = self::$view;
 
         try {
-            $data = DB::table($tb)
+            $query = DB::table($tb)
                 ->select(
                     '*'
                 )
@@ -60,8 +60,20 @@ class LaundryQB
                 ->whereDate('tanggal_masuk', '>=', $startDate)
                 ->whereDate('tanggal_masuk', '<=', $endDate)
                 ->limit(50)
-                ->orderBy("update_at", 'desc')
-                ->get();
+                ->orderBy("status_laundry", 'asc');
+
+                if(ISSET($status) && $status != ''){
+                    $query->where('status_laundry','=',$status);
+                }
+                if(!EMPTY($statusBayar) && $statusBayar != ''){
+                    $query->where('status_bayar','=',$statusBayar);
+                } 
+                if(!EMPTY($customerName)){
+                    $query->where('nama_customer','like','%'.$customerName.'%');
+                }
+
+
+             $data = $query->get();
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -86,6 +98,14 @@ class LaundryQB
             showExceptions($e->getMessage());
             return [];
         }
+    }
+
+    public static function getMaxid(){
+        $tb = self::$tb;
+        $data = DB::table($tb)
+                ->select(DB::raw('count(id) as count')) 
+                ->first();  
+        return $data->count;
     }
 
     public static function getHistoryData($taskUuid)

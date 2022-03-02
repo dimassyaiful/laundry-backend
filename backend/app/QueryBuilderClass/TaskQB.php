@@ -33,17 +33,21 @@ class TaskQB
         }
     }
 
+
+     
     public static function getListTaskLaundry($uuidLaundry)
     {
-        $tb = self::$view ; 
+        $tb = self::$view; 
+
         try {
-            $data = DB::table($tb)
+            $query = DB::table($tb)
                 ->select(
                     '*'
                 )
                 ->where('is_active', 1)  
-                ->where('uuid_laundry', $uuidLaundry)  
-                ->get(); 
+                ->where('uuid_laundry', $uuidLaundry); 
+            $data = $query->get(); 
+
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -54,15 +58,16 @@ class TaskQB
 
     public static function getSelectedData($id)
     {
+        DB::enableQueryLog();
         $tb = self::$view ; 
         try {
-            $data = DB::table($tb)
+            $query = DB::table($tb)
                 ->select(
                     '*'
                 )
                 ->where('is_active', 1)  
-                ->where('uuid_task', $id)  
-                ->first(); 
+                ->where('uuid_task', $id);
+            $data = $query->first(); 
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -122,7 +127,7 @@ class TaskQB
         try {
             return DB::table(self::$tb)->insert($insertData);
         } catch (\Exception $e) {
-            Log::info($e->getMessage());
+            Log::info($e);
             showExceptions($e->getMessage());
             return false;
         }
