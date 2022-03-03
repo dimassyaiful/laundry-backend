@@ -9,6 +9,7 @@ class LaundryQB
 
     private static $tb = "laundry";
     private static $view = "view_laundry";
+    private static $viewReport = "view_laundry_report";
     private static $tbUser = "user";
     private static $tbHistory = "laundry_history";
     private static $tbStatus = "status";
@@ -73,7 +74,41 @@ class LaundryQB
                 }
 
 
-             $data = $query->get();
+            $data = $query->get();
+            return $data;
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            showExceptions($e->getMessage());
+            return [];
+        }
+    }
+
+    public static function getAllReport($startDate, $endDate , $status=null, $statusBayar=null, $customerName=null)
+    {
+        $tb = self::$viewReport;
+
+        try {
+            $query = DB::table($tb)
+                ->select(
+                    '*'
+                )
+                ->where('is_active', 1)
+                ->whereDate('tanggal_masuk', '>=', $startDate)
+                ->whereDate('tanggal_masuk', '<=', $endDate) 
+                ->orderBy("id", 'asc');
+
+                if(ISSET($status) && $status != ''){
+                    $query->where('status_laundry','=',$status);
+                }
+                if(!EMPTY($statusBayar) && $statusBayar != ''){
+                    $query->where('status_bayar','=',$statusBayar);
+                } 
+                if(!EMPTY($customerName)){
+                    $query->where('nama_customer','like','%'.$customerName.'%');
+                }
+
+
+            $data = $query->get();
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());

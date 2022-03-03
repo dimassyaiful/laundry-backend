@@ -80,4 +80,5 @@ $router->group(['prefix' => 'api/laundry', 'middleware' => 'passport'], function
     $router->post('/update', 'LaundryController@update');
     $router->post('/delete', 'LaundryController@delete');
     $router->get('/status', 'LaundryController@getAllStatus');
+    $router->get('/report', 'LaundryController@getDataLaporan');
 });

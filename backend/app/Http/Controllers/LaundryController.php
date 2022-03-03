@@ -70,6 +70,26 @@ class LaundryController extends Controller
         return makeReturnJson(true, $returnData);
     }
 
+    public function getDataLaporan(Request $request)
+    {
+        $startDate = $request->tanggal_masuk;
+        $endDate = $request->tanggal_masuk2;
+        $status = $request->status;
+        $statusBayar = $request->status_bayar;
+        $customerName = $request->customer_name;
+        $jenis_laundry = $request->jenis_laundry; 
+
+        if (!$startDate) {
+            $startDate = date('Y-m-d', strtotime('today - 30 days'));
+        }
+        if (!$endDate) {
+            $endDate = date('Y-m-d');
+        } 
+
+        $data = LaundryQB::getAllReport($startDate, $endDate, $status, $statusBayar, $customerName); 
+        return makeReturnJson(true, $data);
+    }
+
     public function getAllStatus(Request $request)
     {
         //get selected data laundry
