@@ -9,15 +9,21 @@ class TransaksiTambahanQB
 
     private static $tb_traksaksi = "transaksi_tambahan"; 
 
-    public static function getAllData()
+    public static function getAllData($startDate=NULL,$endDate=NULL,$type=NULL)
     {
         $tb_traksaksi = self::$tb_traksaksi . " as t"; 
         try {
-            $data = DB::table($tb_traksaksi)
+            $query = DB::table($tb_traksaksi)
                 ->select(
-                    't.*', )
-                ->where('t.is_active', 1)  
-                ->get();
+                    't.*')
+                ->whereDate('t.tanggal_transaksi', '>=', $startDate)
+                ->whereDate('t.tanggal_transaksi', '<=', $endDate) 
+                ->where('t.is_active', 1);
+            
+            if(!EMPTY($type) && $type != ''){
+                $query->where('type','=',$type);
+            } 
+            $data = $query->get();
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());

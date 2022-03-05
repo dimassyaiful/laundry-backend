@@ -9,7 +9,16 @@ use DB;
 class TransaksiTambahanController extends Controller{
     public function index(Request $request)
     {
-        $data = TransaksiTambahanQB::getAllData();
+        $startDate = $request->tanggal_masuk;
+        $endDate = $request->tanggal_masuk2;
+        $type = $request->type;
+        if (!$startDate) {
+            $startDate = date('Y-m-d', strtotime('today - 30 days'));
+        }
+        if (!$endDate) {
+            $endDate = date('Y-m-d');
+        }
+        $data = TransaksiTambahanQB::getAllData($startDate,$endDate,$type);
         return makeReturnJson(true, $data);
     }
     public function details(Request $request, $id)
@@ -27,6 +36,7 @@ class TransaksiTambahanController extends Controller{
                 'type' => 'required',
                 'jumlah' => 'required',
                 'tanggal' => 'required',
+                'keterangan' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -40,6 +50,7 @@ class TransaksiTambahanController extends Controller{
                 'type' => $request->type,
                 'jumlah' => $request->jumlah,
                 'tanggal_transaksi' => $request->tanggal,
+                'keterangan' => $request->keterangan,
                 'is_active' => 1,
             ]; 
 
@@ -67,6 +78,7 @@ class TransaksiTambahanController extends Controller{
                 'type' => 'required',
                 'jumlah' => 'required',
                 'tanggal' => 'required',
+                'keterangan' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -79,8 +91,8 @@ class TransaksiTambahanController extends Controller{
                 'uuid' => $request->uuid,
                 'type' => $request->type,
                 'jumlah' => $request->jumlah,
-                'tanggal_transaksi' => $request->tanggal,
-                'is_active' => 1,
+                'tanggal_transaksi' => $request->tanggal, 
+                'keterangan' => $request->keterangan, 
             ];  
 
             // update user execute
