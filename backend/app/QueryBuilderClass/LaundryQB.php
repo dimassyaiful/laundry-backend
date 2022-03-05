@@ -95,7 +95,7 @@ class LaundryQB
                 ->where('is_active', 1)
                 ->whereDate('tanggal_masuk', '>=', $startDate)
                 ->whereDate('tanggal_masuk', '<=', $endDate) 
-                ->orderBy("tanggal_masuk", 'asc');
+                ->orderBy("tanggal_masuk", 'desc');
 
                 if(ISSET($status) && $status != ''){
                     $query->where('status_laundry','=',$status);

@@ -18,7 +18,8 @@ class TransaksiTambahanQB
                     't.*')
                 ->whereDate('t.tanggal_transaksi', '>=', $startDate)
                 ->whereDate('t.tanggal_transaksi', '<=', $endDate) 
-                ->where('t.is_active', 1);
+                ->where('t.is_active', 1)
+                ->orderBy("t.tanggal_transaksi", 'desc');
             
             if(!EMPTY($type) && $type != ''){
                 $query->where('type','=',$type);
