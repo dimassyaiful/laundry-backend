@@ -82,3 +82,12 @@ $router->group(['prefix' => 'api/laundry', 'middleware' => 'passport'], function
     $router->get('/status', 'LaundryController@getAllStatus');
     $router->get('/report', 'LaundryController@getDataLaporan');
 });
+
+// Route Transaksi tambahan 
+$router->group(['prefix' => 'api/transaksi_tambahan', 'middleware' => 'passport'], function () use ($router) {
+    $router->get('/data', 'TransaksiTambahanController@index');
+    $router->get('/data/{id}', 'TransaksiTambahanController@details');
+    $router->post('/insert', 'TransaksiTambahanController@insert');
+    $router->post('/update', 'TransaksiTambahanController@update');
+    $router->post('/delete', 'TransaksiTambahanController@delete'); 
+});

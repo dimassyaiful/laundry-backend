@@ -83,7 +83,7 @@ class LaundryQB
         }
     }
 
-    public static function getAllReport($startDate, $endDate , $status=null, $statusBayar=null, $customerName=null)
+    public static function getAllReport($startDate, $endDate , $status=null, $statusBayar=null, $customerName=null,$jenis_laundry=NULL)
     {
         $tb = self::$viewReport;
 
@@ -95,12 +95,15 @@ class LaundryQB
                 ->where('is_active', 1)
                 ->whereDate('tanggal_masuk', '>=', $startDate)
                 ->whereDate('tanggal_masuk', '<=', $endDate) 
-                ->orderBy("id", 'asc');
+                ->orderBy("tanggal_masuk", 'asc');
 
                 if(ISSET($status) && $status != ''){
                     $query->where('status_laundry','=',$status);
                 }
                 if(!EMPTY($statusBayar) && $statusBayar != ''){
+                    $query->where('status_bayar','=',$statusBayar);
+                } 
+                if(!EMPTY($jenis_laundry) && $jenis_laundry != ''){
                     $query->where('status_bayar','=',$statusBayar);
                 } 
                 if(!EMPTY($customerName)){

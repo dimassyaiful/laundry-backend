@@ -86,7 +86,7 @@ class LaundryController extends Controller
             $endDate = date('Y-m-d');
         } 
 
-        $data = LaundryQB::getAllReport($startDate, $endDate, $status, $statusBayar, $customerName); 
+        $data = LaundryQB::getAllReport($startDate, $endDate, $status, $statusBayar, $customerName,$jenis_laundry); 
         return makeReturnJson(true, $data);
     }
 
