@@ -78,6 +78,8 @@ class LaundryController extends Controller
         $statusBayar = $request->status_bayar;
         $customerName = $request->customer_name;
         $jenis_laundry = $request->jenis_laundry; 
+        $lunasDateStart = $request->tanggal_lunas;
+        $lunasDateEnd = $request->tanggal_lunas2;
 
         if (!$startDate) {
             $startDate = date('Y-m-d', strtotime('today - 30 days'));
@@ -86,7 +88,7 @@ class LaundryController extends Controller
             $endDate = date('Y-m-d');
         } 
 
-        $data = LaundryQB::getAllReport($startDate, $endDate, $status, $statusBayar, $customerName,$jenis_laundry); 
+        $data = LaundryQB::getAllReport($startDate, $endDate, $status, $statusBayar, $customerName,$jenis_laundry, $lunasDateStart,$lunasDateEnd); 
         return makeReturnJson(true, $data);
     }
 
@@ -217,8 +219,9 @@ class LaundryController extends Controller
             $data = [
                 'uuid_customer' => $request->uuid_customer,
                 'tanggal_masuk' => $request->tanggal_masuk,
+                'status_bayar' => $request->status_bayar, 
+                'tanggal_lunas' => $request->tanggal_lunas,
                 'tanggal_keluar' => $request->tanggal_keluar,
-                'status_bayar' => $request->status_bayar,
             ];
 
             $keterangan = "Detail Laundry Berhasil Diubah";

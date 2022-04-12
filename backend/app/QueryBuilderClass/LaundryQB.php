@@ -48,8 +48,13 @@ class LaundryQB
         }
     }
 
-    public static function getAllData($startDate, $endDate , $status=null, $statusBayar=null, $customerName=null)
-    {
+    public static function getAllData(
+        $startDate, 
+        $endDate , 
+        $status=null, 
+        $statusBayar=null, 
+        $customerName=null
+    ){
         $tb = self::$view;
 
         try {
@@ -57,9 +62,9 @@ class LaundryQB
                 ->select(
                     '*'
                 )
-                ->where('is_active', 1)
                 ->whereDate('tanggal_masuk', '>=', $startDate)
                 ->whereDate('tanggal_masuk', '<=', $endDate)
+                ->where('is_active', 1)
                 ->limit(50)
                 ->orderBy("status_laundry", 'asc');
 
@@ -72,6 +77,7 @@ class LaundryQB
                 if(!EMPTY($customerName)){
                     $query->where('nama_customer','like','%'.$customerName.'%');
                 }
+ 
 
 
             $data = $query->get();
@@ -83,7 +89,16 @@ class LaundryQB
         }
     }
 
-    public static function getAllReport($startDate, $endDate , $status=null, $statusBayar=null, $customerName=null,$jenis_laundry=NULL)
+    public static function getAllReport(
+        $startDate, 
+        $endDate , 
+        $status=null, 
+        $statusBayar=null,
+        $customerName=null,
+        $jenis_laundry=NULL,
+        $tglLunas=null,
+        $tglLunas2=null
+    )
     {
         $tb = self::$viewReport;
 
@@ -92,10 +107,16 @@ class LaundryQB
                 ->select(
                     '*'
                 )
-                ->where('is_active', 1)
-                ->whereDate('tanggal_masuk', '>=', $startDate)
-                ->whereDate('tanggal_masuk', '<=', $endDate) 
+                ->where('is_active', 1) 
                 ->orderBy("tanggal_masuk", 'desc');
+
+                if($tglLunas && $tglLunas2){
+                    $query->whereDate('tanggal_lunas', '>=', $tglLunas);
+                    $query->whereDate('tanggal_lunas', '<=', $tglLunas2);
+                }else{
+                    $query->whereDate('tanggal_masuk', '>=', $startDate);
+                    $query->whereDate('tanggal_masuk', '<=', $endDate);
+                }
 
                 if(ISSET($status) && $status != ''){
                     $query->where('status_laundry','=',$status);
