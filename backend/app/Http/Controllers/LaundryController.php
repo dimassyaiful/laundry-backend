@@ -107,8 +107,9 @@ class LaundryController extends Controller
         //get selected data laundry
         //get task
         $dataLaundry = LaundryQB::getSelectedData($id);
-        $dataTask = TaskQB::getListTaskLaundry($id);
-
+        $dataTask = TaskQB::getListTaskLaundry($id); 
+        $dataLaundry->token = password_hash($dataLaundry->uuid_laundry.$dataLaundry->insert_at,PASSWORD_DEFAULT);
+        
         $data = [
             'laundry' => $dataLaundry,
             'task' => $dataTask,
@@ -300,5 +301,71 @@ class LaundryController extends Controller
         } catch (\Exception $e) {
             return makeReturnJson(false, $e->getMessage());
         }
+    }
+
+    public function sendWaReceipt(Request $request)
+    {
+        // validation
+        $data = $request->post();
+        $validator = \Validator::make($data, [
+            'uuid_laundry' => 'required',
+            'token' => 'required', 
+        ]);
+
+        // get data laundry
+        $dataLaundry = LaundryQB::getSelectedData($data['uuid_laundry']);
+        if(!$dataLaundry){
+            return makeReturnJson(false, 'Data Tidak Ditemukan');
+        }
+
+        $dataTask = TaskQB::getListTaskLaundry($data['uuid_laundry']); 
+        if(!$dataTask){
+            return makeReturnJson(false, 'Data Tidak Ditemukan');
+        }
+
+        // Validate Token
+        // Token terdiri dari encrypt uuid dan created by
+        $verifyCode = $dataLaundry->uuid_laundry.$dataLaundry->insert_at;
+        if(!password_verify($verifyCode,$data['token'])){
+            return makeReturnJson(false, 'Token Not Valid');
+        }
+
+        $phoneNumber = $dataLaundry->no_telp;
+        $message = "Hi ".$dataLaundry->nama_customer.",
+terimakasih telah laundry di Sinar Clean Laundry
+berikut detail cucian anda : 
+
+No nota: ".$dataLaundry->id."";
+
+        // hitung total
+        $totalNominal = 0;
+        foreach ($dataTask as $key => $val) {
+            $message .= "
+---------------------
+Jenis: ".$val->jenis_laundry."
+Jumlah: ".$val->jumlah." ".$val->uom."
+harga:  Rp. " . number_format($val->total_harga,0,',','.')."
+---------------------";
+        $totalNominal += $val->total_harga;
+        }
+
+        $message .= "
+Total Harga : Rp. ".number_format($totalNominal,0,',','.')."
+
+jika cucian selesai kami akan menginfokan anda :)
+Terimakasih";
+
+        return $this->sendMessageWa($phoneNumber,$message);
+    }
+
+    public Function sendMessageWa($phoneNumber,$message){
+        if(substr($phoneNumber,  0, 2)=='08'){
+            $phoneNumber = substr($phoneNumber, 2);
+            $phoneNumber = '628'.$phoneNumber;
+        }
+        $whatsappMsg = urlencode( $message );
+        $text = "https://api.whatsapp.com/send?phone=".$phoneNumber."&text=".$whatsappMsg; 
+       
+        return makeReturnJson(true, $text,200);    
     }
 }
