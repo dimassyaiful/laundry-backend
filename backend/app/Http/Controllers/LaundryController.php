@@ -331,29 +331,102 @@ class LaundryController extends Controller
         }
 
         $phoneNumber = $dataLaundry->no_telp;
-        $message = "Hi ".$dataLaundry->nama_customer.",
-terimakasih telah laundry di Sinar Clean Laundry
-berikut detail cucian anda : 
+        $message = "Hi ".$dataLaundry->nama_customer.", 
+berikut Detail Cucian anda : 
 
-No nota: ".$dataLaundry->id."";
+No nota: ".$dataLaundry->id."
+Tanggal: ".date('d/m/Y', strtotime($dataLaundry->tanggal_masuk));
 
         // hitung total
         $totalNominal = 0;
+        $message .= "
+---------------------";
         foreach ($dataTask as $key => $val) {
             $message .= "
----------------------
 Jenis: ".$val->jenis_laundry."
 Jumlah: ".$val->jumlah." ".$val->uom."
-harga:  Rp. " . number_format($val->total_harga,0,',','.')."
+harga:  Rp. " . number_format($val->harga,0,',','.')."/".$val->uom."
 ---------------------";
         $totalNominal += $val->total_harga;
         }
 
+        $statusBayar = 'Belum Lunas';
+        if($dataLaundry->status_bayar==10){
+            $statusBayar = 'Lunas';
+        }
+
         $message .= "
 Total Harga : Rp. ".number_format($totalNominal,0,',','.')."
+Status Bayar : ".$statusBayar." 
+Status : On Progress
 
-jika cucian selesai kami akan menginfokan anda :)
-Terimakasih";
+Terimakasih
+- Sinar Clean Laundry - ";
+
+        return $this->sendMessageWa($phoneNumber,$message);
+    }
+
+    public function sendWaInfoSelesai(Request $request)
+    {
+        // validation
+        $data = $request->post();
+        $validator = \Validator::make($data, [
+            'uuid_laundry' => 'required',
+            'token' => 'required', 
+        ]);
+
+        // get data laundry
+        $dataLaundry = LaundryQB::getSelectedData($data['uuid_laundry']);
+        if(!$dataLaundry){
+            return makeReturnJson(false, 'Data Tidak Ditemukan');
+        }
+
+        $dataTask = TaskQB::getListTaskLaundry($data['uuid_laundry']); 
+        if(!$dataTask){
+            return makeReturnJson(false, 'Data Tidak Ditemukan');
+        }
+
+        // Validate Token
+        // Token terdiri dari encrypt uuid dan created by
+        $verifyCode = $dataLaundry->uuid_laundry.$dataLaundry->insert_at;
+        if(!password_verify($verifyCode,$data['token'])){
+            return makeReturnJson(false, 'Token Not Valid');
+        }
+
+        $phoneNumber = $dataLaundry->no_telp;
+        $message = "Hi ".$dataLaundry->nama_customer.",
+laundry nya sudah selesai ya :)
+
+Detail Cucian :
+No nota: ".$dataLaundry->id."
+Tanggal: ".date('d/m/Y', strtotime($dataLaundry->tanggal_masuk));
+
+        // hitung total
+        $totalNominal = 0;
+        $message .= "
+---------------------";
+        foreach ($dataTask as $key => $val) {
+            $message .= " 
+Jenis: ".$val->jenis_laundry."
+Jumlah: ".$val->jumlah." ".$val->uom."
+harga:  Rp. " . number_format($val->harga,0,',','.')."/".$val->uom."
+---------------------";
+        $totalNominal += $val->total_harga;
+        }
+
+        $statusBayar = 'Belum Lunas';
+        if($dataLaundry->status_bayar==10){
+            $statusBayar = 'Lunas';
+        }
+
+        $message .= "
+Total Harga : Rp. ".number_format($totalNominal,0,',','.')."
+Status Bayar : ".$statusBayar." 
+Status : Selesai
+
+Terimakasih
+- Sinar Clean Laundry - ";
+ 
 
         return $this->sendMessageWa($phoneNumber,$message);
     }

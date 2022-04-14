@@ -82,6 +82,8 @@ $router->group(['prefix' => 'api/laundry', 'middleware' => 'passport'], function
     $router->get('/status', 'LaundryController@getAllStatus');
     $router->get('/report', 'LaundryController@getDataLaporan');
     $router->post('/sendReceipt', 'LaundryController@sendWaReceipt');
+    $router->post('/sendStatusSelesai', 'LaundryController@sendWaInfoSelesai');
+    
 });
 
 // Route Transaksi tambahan 
