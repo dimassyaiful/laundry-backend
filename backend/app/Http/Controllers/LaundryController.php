@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\QueryBuilderClass\LaundryQB;
 use App\QueryBuilderClass\TaskQB;
+use App\QueryBuilderClass\JenisLaundryQB;
 use DB;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Uuid;
@@ -113,6 +114,67 @@ class LaundryController extends Controller
         $data = [
             'laundry' => $dataLaundry,
             'task' => $dataTask,
+        ];
+
+        if (!$data) {
+            makeReturnJson(true, []);
+        }
+
+        return makeReturnJson(true, $data);
+    }
+
+    public function details_web(Request $request, $id)
+    {
+        //get selected data laundry
+        //get task
+        $dataLaundry = LaundryQB::getSelectedData($id);
+        if(!$dataLaundry){
+            return makeReturnJson(false, 'No Data Found', 400);
+        }
+
+        $dataTask = TaskQB::getListTaskLaundryWeb($id);  
+        
+        // unset property
+        $dataLaundry->no_nota = $dataLaundry->id;
+        unset($dataLaundry->id);
+        unset($dataLaundry->uuid_customer);
+        unset($dataLaundry->alamat);
+        unset($dataLaundry->no_telp);
+        unset($dataLaundry->is_active);
+        unset($dataLaundry->insert_at);
+        unset($dataLaundry->update_at);
+        unset($dataLaundry->update_by);
+
+        // data task
+        $total_harga = 0;
+        foreach ($dataTask as $key => $value) {
+            $dataJl = JenisLaundryQB::getSelectedData($value->id_jenis_laundry);
+            $statusData = JenisLaundryQB::getStatusDataWeb($dataJl->status_order_array);
+            foreach ($statusData as $k => $val) { 
+                if($val->id_status == $value->status_id){
+                    $statusData[$k]->selected = true;
+                }else{
+                    $statusData[$k]->selected = false;
+                }  
+                if($val->id_status == 0){
+                    $statusData[$k]->keterangan = "Dalam Antrian";
+                }
+                unset($statusData[$k]->id_status);
+                unset($statusData[$k]->icon);
+            }
+            $dataTask[$key]->status = $statusData;
+            $total_harga += (int)$value->total_harga;
+            unset($dataTask[$key]->status_id);
+            unset($dataTask[$key]->id_jenis_laundry);
+        } 
+
+        // total harga
+        $dataLaundry->total_harga = $total_harga;
+ 
+        
+        $data = [
+            'laundry' => $dataLaundry,
+            'cucian' => $dataTask,
         ];
 
         if (!$data) {

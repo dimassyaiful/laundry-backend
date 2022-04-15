@@ -100,7 +100,9 @@ class JenisLaundryQB
 
     public static function getStatusData($statusString)
     {
-        $statusArr = explode(',', $statusString);
+        $a = str_replace('[','',$statusString);
+        $b = str_replace(']','',$a);
+        $statusArr = explode(',', $b); 
         $tb = self::$tbStatus . " as s";
         try {
             $data = DB::table($tb)
@@ -110,7 +112,34 @@ class JenisLaundryQB
                     's.icon_material as icon',
                 )
                 ->whereIn('id_status', $statusArr)
-                ->orderByRaw("FIELD(id_status,$statusString)")
+                ->orderByRaw("FIELD(id_status,$b)")
+                ->get();
+
+            return $data;
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            showExceptions($e->getMessage());
+            return [];
+        }
+    }
+
+    
+    public static function getStatusDataWeb($statusString)
+    {
+        $a = str_replace('[','',$statusString);
+        $b = str_replace(']','',$a);
+        $c = "0,".$b.",1";
+        $statusArr = explode(',', $c);    
+        $tb = self::$tbStatus . " as s";
+        try {
+            $data = DB::table($tb)
+                ->select(
+                    's.id_status',
+                    's.keterangan',
+                    's.icon_material as icon',
+                )
+                ->whereIn('id_status', $statusArr)
+                ->orderByRaw("FIELD(id_status,$c)")
                 ->get();
 
             return $data;

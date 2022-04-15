@@ -65,6 +65,37 @@ class TaskQB
         }
     }
 
+    public static function getListTaskLaundryWeb($uuidLaundry)
+    {
+        $tb = self::$view; 
+
+        try {
+            $query = DB::table($tb)
+                ->select(
+                    'uuid_task',
+                    'uuid_laundry',
+                    'nama',
+                    'jenis_laundry',
+                    'id_jenis_laundry',
+                    'jumlah',
+                    'uom',
+                    'harga',
+                    'total_harga',
+                    'status',
+                    'status_id', 
+                )
+                ->where('is_active', 1)  
+                ->where('uuid_laundry', $uuidLaundry); 
+            $data = $query->get(); 
+
+            return $data;
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            showExceptions($e->getMessage());
+            return [];
+        }
+    }
+
     public static function getSelectedData($id)
     {
         DB::enableQueryLog();

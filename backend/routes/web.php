@@ -30,6 +30,11 @@ $router->group(['prefix' => 'auth', 'middleware' => 'passport'], function () use
     $router->post('/refreshPassport', 'AuthController@refreshPassport');
 });
 
+// public
+$router->group(['prefix' => 'public'], function () use ($router) {
+    $router->get('/laundry/{id}', 'LaundryController@details_web'); 
+});
+
 //router user
 $router->group(['prefix' => 'api/user', 'middleware' => 'passport'], function () use ($router) {
     $router->get('/data', 'UserController@index');
