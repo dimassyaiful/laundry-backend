@@ -12,7 +12,11 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $data = TaskQB::getAllData();
+        $status_id = $request->status_id;
+        $except_status_id = $request->except_status_id;
+        $handle_by = $request->handle_by;
+
+        $data = TaskQB::getAllData($status_id, $handle_by,$except_status_id);
         return makeReturnJson(true, $data);
     }
 

@@ -13,18 +13,27 @@ class TaskQB
     private static $tbHistory = "task_history";  
     private static $tbStatus = "status";  
 
-    public static function getAllData()
+    public static function getAllData($status_id, $handle_by, $except_status_id)
     {
         $tb = self::$view; 
         try {
-            $data = DB::table($tb)
+            $query = DB::table($tb)
                 ->select( 
                     '*'
                 )
-                ->where('is_active', 1)  
-                ->limit(100)
-                ->orderBy("update_at", 'desc')
-                ->get(); 
+                ->where('is_active', 1);
+            if($status_id){
+                $query->where('status_id', $status_id);
+            }
+            if($handle_by){
+                $query->where('handle_by_id', $handle_by);
+            }
+            if($except_status_id){
+                $query->where('status_id','<>' ,$except_status_id);
+            }
+
+            $query->limit(100)->orderBy("update_at", 'desc');
+            $data = $query->get(); 
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
