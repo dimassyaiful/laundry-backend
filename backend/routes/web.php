@@ -94,3 +94,10 @@ $router->group(['prefix' => 'api/transaksi_tambahan', 'middleware' => 'passport'
     $router->post('/update', 'TransaksiTambahanController@update');
     $router->post('/delete', 'TransaksiTambahanController@delete'); 
 });
+
+// absensi
+$router->group(['prefix' => 'api/absensi', 'middleware' => 'passport'], function () use ($router) {
+    $router->post('/history', 'AbsensiController@index'); 
+    $router->post('/today', 'AbsensiController@hariIni'); 
+    $router->post('/submit', 'AbsensiController@insert'); 
+});

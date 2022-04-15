@@ -110,13 +110,18 @@ class LaundryQB
                 ->where('is_active', 1) 
                 ->orderBy("tanggal_masuk", 'desc');
 
+                // if($tglLunas && $tglLunas2){
+                //     $query->whereDate('tanggal_lunas', '>=', $tglLunas);
+                //     $query->whereDate('tanggal_lunas', '<=', $tglLunas2);
+                // }else{
+                //     $query->whereDate('tanggal_masuk', '>=', $startDate);
+                //     $query->whereDate('tanggal_masuk', '<=', $endDate);
+                // }
+                
                 if($tglLunas && $tglLunas2){
                     $query->whereDate('tanggal_lunas', '>=', $tglLunas);
                     $query->whereDate('tanggal_lunas', '<=', $tglLunas2);
-                }else{
-                    $query->whereDate('tanggal_masuk', '>=', $startDate);
-                    $query->whereDate('tanggal_masuk', '<=', $endDate);
-                }
+                } 
 
                 if(ISSET($status) && $status != ''){
                     $query->where('status_laundry','=',$status);
