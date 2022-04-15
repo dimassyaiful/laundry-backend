@@ -55,11 +55,18 @@ class AbsensiController extends Controller
             $validator = \Validator::make($data, [
                 'id_user' => 'required', 
                 'type'=>'required',
+                'bssid'=>'required',
             ]);
 
             if ($validator->fails()) {
                 $messages = $validator->errors();
                 return makeReturnJson(false, $validator->errors()->first(), 400);
+            }
+
+            // cek bssid
+            $bssid =  AbsensiQB::getWifi($request->bssid);
+            if(!$bssid){
+                return makeReturnJson(false, "Mohon connect wifi laundry terlebih dahulu", 200);
             }
             
             // prepare

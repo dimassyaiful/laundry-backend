@@ -52,15 +52,16 @@ class AbsensiQB
     }
 
     
-    public static function getWifi()
+    public static function getWifi($bssid)
     {
         $tb = self::$tbWifi; 
         try {
             $data = DB::table($tb)
                 ->select( 
                     '*'
-                ) 
-                ->get(); 
+                )  
+                ->where('bssid', $bssid)  
+                ->first(); 
             return $data;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
