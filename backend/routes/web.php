@@ -31,7 +31,7 @@ $router->group(['prefix' => 'auth', 'middleware' => 'passport'], function () use
 });
 
 // public
-$router->group(['prefix' => 'public'], function () use ($router) {
+$router->group(['prefix' => 'public', 'middleware' => 'CorsMiddleware'], function () use ($router) {
     $router->get('/laundry/{id}', 'LaundryController@details_web'); 
 });
 

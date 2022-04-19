@@ -134,12 +134,19 @@ class LaundryController extends Controller
 
         $dataTask = TaskQB::getListTaskLaundryWeb($id);  
         
+        // phone number encrypt
+        $phoneNumber = $dataLaundry->no_telp;
+        $a =substr($phoneNumber,0,8);
+        $b = str_replace($a,'********',$phoneNumber);
+        $dataLaundry->no_telp = $b;
+        
+
+        
         // unset property
         $dataLaundry->no_nota = $dataLaundry->id;
         unset($dataLaundry->id);
         unset($dataLaundry->uuid_customer);
-        unset($dataLaundry->alamat);
-        unset($dataLaundry->no_telp);
+        unset($dataLaundry->alamat); 
         unset($dataLaundry->is_active);
         unset($dataLaundry->insert_at);
         unset($dataLaundry->update_at);
@@ -158,8 +165,7 @@ class LaundryController extends Controller
                 }  
                 if($val->id_status == 0){
                     $statusData[$k]->keterangan = "Dalam Antrian";
-                }
-                unset($statusData[$k]->id_status);
+                } 
                 unset($statusData[$k]->icon);
             }
             $dataTask[$key]->status = $statusData;
