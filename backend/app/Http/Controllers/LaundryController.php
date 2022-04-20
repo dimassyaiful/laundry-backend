@@ -428,6 +428,9 @@ Total Harga : Rp. ".number_format($totalNominal,0,',','.')."
 Status Bayar : ".$statusBayar." 
 Status : On Progress
 
+Status Pengerjaan Cucian bisa di cek disini
+https://sinarcleanlaundry.com/?".$dataLaundry->uuid_laundry."
+
 Terimakasih
 - Sinar Clean Laundry - ";
 
