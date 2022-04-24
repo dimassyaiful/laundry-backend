@@ -104,8 +104,7 @@ class TaskQB
             $query = DB::table($tb)
                 ->select(
                     '*'
-                )
-                ->where('is_active', 1)  
+                ) 
                 ->where('uuid_task', $id);
             $data = $query->first(); 
             return $data;

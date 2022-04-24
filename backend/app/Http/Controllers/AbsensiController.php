@@ -69,8 +69,7 @@ class AbsensiController extends Controller
                 return makeReturnJson(false, "Mohon connect wifi laundry terlebih dahulu", 200);
             }
             
-            // prepare
-            
+            // prepare 
             DB::beginTransaction();
             $date = date('Y-m-d');
             $datetime = date('Y-m-d H:i:s');
