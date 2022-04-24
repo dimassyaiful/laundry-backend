@@ -42,8 +42,7 @@ class JenisLaundryQB
             $data = DB::table($tb)
                 ->select(
                     'j.*'
-                )
-                ->where('j.is_active', 1)
+                ) 
                 ->where('j.id_jenis_laundry', '=', $id)
                 ->first();
 
