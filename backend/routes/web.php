@@ -75,6 +75,7 @@ $router->group(['prefix' => 'api/task', 'middleware' => 'passport'], function ()
     $router->post('/delete', 'TaskController@delete');
     $router->post('/handover', 'TaskController@handover');
     $router->post('/setStatus', 'TaskController@setStatus');
+    $router->post('/setPhoto', 'TaskController@setPhoto');
 });
 
 //router laundry

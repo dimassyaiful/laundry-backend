@@ -334,4 +334,75 @@ class TaskController extends Controller
             return makeReturnJson(false, $e->getMessage());
         } 
     }
+
+    public function setPhoto(Request $request)
+    { 
+        try {
+            // validation
+            $data = $request->post();
+            $validator = \Validator::make($data, [ 
+                'uuid_task' => 'required',   
+                'status' => 'required|numeric'
+            ]);
+
+            if ($validator->fails()) {
+                $messages = $validator->errors();
+                return makeReturnJson(false, $validator->errors()->first(), 400);
+            }
+            
+            if(EMPTY($request->file('photo'))){ 
+                return makeReturnJson(false, 'File Tidak Ditemukan', 400);
+            }
+
+            // Upload Gambar
+            $file = $request->file('photo'); 
+            $tipe = $file->getClientOriginalExtension();   
+            $allowedTypeFile = ['jpg','jpeg','png'];
+            if(!in_array($tipe,$allowedTypeFile)){
+                return makeReturnJson(false, 'Format Image Not Allowed', 400);
+            }
+            $destinationPath = 'upload/task/';
+            $file_name = $request->uuid_task.Date('d-m-Y H-i-s').'.'.$tipe;   
+            $file->move($destinationPath,$file_name);
+            $valuePhoto = $destinationPath.$file_name;
+            
+            //prepare  
+            $uuid_task = $request->uuid_task;
+            $data = [  
+                'photo'  => $valuePhoto,
+            ];
+            
+            $uuid_task_history = Uuid::uuid4()->toString();
+            $keterangan = "Mengubah data foto";
+            $dataHistory = [ 
+                'uuid_task_history' => $uuid_task_history,
+                'uuid_task'         => $request->uuid_task,
+                'status_from'       => $request->status,
+                'status_to'         => $request->status, 
+                'keterangan'        => $keterangan
+            ];
+
+            DB::beginTransaction();
+
+            // insert task
+            $execute = TaskQB::update($request->header('id_user'), $uuid_task, $data);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengupload gambar", "746cea10-c7e6-11ec-9d64-0242ac120002");
+            }
+
+            // insert task history 
+            $execute = TaskQB::insertHistory($request->header('id_user'), $dataHistory);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah detail List Cucian", "7a66fc62-c7e6-11ec-9d64-0242ac120002");
+            }
+ 
+            DB::commit();
+            return makeReturnJson(true, "List Cucian berhasil diubah", 200);
+        } catch (\Exception $e) { 
+            return makeReturnJson(false, $e->getMessage());
+        } 
+    }
+
 }

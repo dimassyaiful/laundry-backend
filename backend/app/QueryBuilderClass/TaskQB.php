@@ -199,7 +199,7 @@ class TaskQB
             showExceptions($e->getMessage());
             return false;
         }
-    }
+    } 
 
     public static function delete($userInput, $id, $data)
     {
