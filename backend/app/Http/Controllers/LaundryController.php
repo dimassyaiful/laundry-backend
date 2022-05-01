@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\QueryBuilderClass\LaundryQB;
 use App\QueryBuilderClass\TaskQB;
 use App\QueryBuilderClass\JenisLaundryQB;
+use App\QueryBuilderClass\CustomerQB;
 use DB;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Uuid;
@@ -511,5 +512,154 @@ Terimakasih
         $text = "https://api.whatsapp.com/send?phone=".$phoneNumber."&text=".$whatsappMsg; 
        
         return makeReturnJson(true, $text,200);    
+    }
+
+    
+    public function gunakanDataInden(Request $request)
+    {
+        // validation
+        $data = $request->post();
+        $validator = \Validator::make($data, [
+            'uuid_laundry' => 'required',
+            'uuid_customer' => 'required', 
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            return makeReturnJson(false, $validator->errors()->first(), 400);
+        }
+        
+        // get data laundry
+        $dataLaundry = LaundryQB::getSelectedData($data['uuid_laundry']);
+        if(!$dataLaundry){
+            return makeReturnJson(false, 'Data Laundry Tidak Ditemukan');
+        }
+
+        $inden_from_laundry = $dataLaundry->potongan_inden;
+        $userUuid = $dataLaundry->uuid_customer;
+        $dataCustomer = CustomerQB::getSelectedData($userUuid);
+        if(!$dataCustomer){
+            return makeReturnJson(false, 'Data Customer Tidak Ditemukan');
+        }
+        $inden_from_customer = $dataCustomer->inden;
+
+        //prepare
+        $data = [
+            'potongan_inden' => $inden_from_customer, 
+        ];  
+        $uuid_task_history = Uuid::uuid4()->toString();
+        $jumlahString = number_format($inden_from_customer);
+        $keterangan = $request->header('username') . " menggunakan inden sebanyak $jumlahString untuk laundry dengan no. nota  ".$dataLaundry->id;
+        $dataHistory = [
+            'uuid_inden_history' => $uuid_task_history,
+            'uuid_customer' => $request->uuid_customer,
+            'total' => 0,
+            'keterangan' => $keterangan,
+        ]; 
+        try {
+            DB::beginTransaction();
+
+            // ubah detail laundry
+            $execute = LaundryQB::update($request->header('id_user'), $request->uuid_laundry, $data);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah detail laundry", 200, 'f4b964e4-c973-11ec-9d64-0242ac120002');
+            }
+
+            // Ubah detail customer (inden)
+            $data = ['inden' => 0 ];
+            $execute = CustomerQB::update($request->header('id_user'), $request->uuid_customer, $data);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah data inden customer", 200, "8d9ec18e-c976-11ec-9d64-0242ac120002");
+            }
+
+            // insert task history
+            $execute = CustomerQB::addIndenHistory($request->header('id_user'), $dataHistory);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah data inden customer", 200, "929e4ee4-c975-11ec-9d64-0242ac120002");
+            }
+            
+            DB::commit();
+            return makeReturnJson(true, "Detail Laundry berhasil diubah", 200);
+        } catch (\Exception $e) {
+            return makeReturnJson(false, $e->getMessage());
+        }
+    }
+
+    
+    public function batal_gunakanDataInden(Request $request)
+    {
+        // validation
+        $data = $request->post();
+        $validator = \Validator::make($data, [
+            'uuid_laundry' => 'required',
+            'uuid_customer' => 'required', 
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            return makeReturnJson(false, $validator->errors()->first(), 400);
+        }
+        
+        // get data laundry
+        $dataLaundry = LaundryQB::getSelectedData($data['uuid_laundry']);
+        if(!$dataLaundry){
+            return makeReturnJson(false, 'Data Laundry Tidak Ditemukan');
+        }
+
+        $inden_from_laundry = $dataLaundry->potongan_inden;
+        $userUuid = $dataLaundry->uuid_customer;
+        $dataCustomer = CustomerQB::getSelectedData($userUuid);
+        if(!$dataCustomer){
+            return makeReturnJson(false, 'Data Customer Tidak Ditemukan');
+        }
+        $inden_from_customer = $dataCustomer->inden;
+        
+
+        //prepare
+        $data = [
+            'potongan_inden' => 0, 
+        ];  
+        $dataCustomer = ['inden' => $inden_from_laundry ];
+        $uuid_task_history = Uuid::uuid4()->toString();
+        $jumlahString = number_format($inden_from_laundry);
+        $keterangan = $request->header('username') . " membatalkan penggunaan inden sebanyak $jumlahString untuk laundry dengan no. nota  ".$dataLaundry->id;
+        $dataHistory = [
+            'uuid_inden_history' => $uuid_task_history,
+            'uuid_customer' => $request->uuid_customer,
+            'total' => $inden_from_laundry,
+            'keterangan' => $keterangan,
+        ]; 
+        try {
+            DB::beginTransaction();
+
+            // ubah detail laundry
+            $execute = LaundryQB::update($request->header('id_user'), $request->uuid_laundry, $data);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah detail laundry", 200, 'f4b964e4-c973-11ec-9d64-0242ac120002');
+            }
+
+            // Ubah detail customer (inden)
+            $execute = CustomerQB::update($request->header('id_user'), $request->uuid_customer, $dataCustomer);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah data inden customer", 200, "8d9ec18e-c976-11ec-9d64-0242ac120002");
+            }
+
+            // insert task history
+            $execute = CustomerQB::addIndenHistory($request->header('id_user'), $dataHistory);
+            if (!$execute) {
+                DB::rollBack();
+                return makeReturnJson(false, "Maaf, gagal mengubah data inden customer", 200, "929e4ee4-c975-11ec-9d64-0242ac120002");
+            }
+            
+            DB::commit();
+            return makeReturnJson(true, "Detail Laundry berhasil diubah", 200);
+        } catch (\Exception $e) {
+            return makeReturnJson(false, $e->getMessage());
+        }
     }
 }
