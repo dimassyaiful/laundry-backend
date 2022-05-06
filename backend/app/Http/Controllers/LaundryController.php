@@ -110,7 +110,9 @@ class LaundryController extends Controller
         //get task
         $dataLaundry = LaundryQB::getSelectedData($id);
         $dataTask = TaskQB::getListTaskLaundry($id); 
+        $dataCustomer = CustomerQB::getSelectedData($dataLaundry->uuid_customer);
         $dataLaundry->token = password_hash($dataLaundry->uuid_laundry.$dataLaundry->insert_at,PASSWORD_DEFAULT);
+        $dataLaundry->inden_tersedia =  $dataCustomer->inden; //inden yang belum digunakan user
         
         $data = [
             'laundry' => $dataLaundry,
@@ -582,7 +584,7 @@ Terimakasih
             }
             
             DB::commit();
-            return makeReturnJson(true, "Detail Laundry berhasil diubah", 200);
+            return makeReturnJson(true, "Inden Berhasil Digunakan", 200);
         } catch (\Exception $e) {
             return makeReturnJson(false, $e->getMessage());
         }
@@ -619,10 +621,8 @@ Terimakasih
         
 
         //prepare
-        $data = [
-            'potongan_inden' => 0, 
-        ];  
-        $dataCustomer = ['inden' => $inden_from_laundry ];
+        $data = ['potongan_inden' => 0];  
+        $dataCustomer = ['inden' => (int)$inden_from_laundry ]; 
         $uuid_task_history = Uuid::uuid4()->toString();
         $jumlahString = number_format($inden_from_laundry);
         $keterangan = $request->header('username') . " membatalkan penggunaan inden sebanyak $jumlahString untuk laundry dengan no. nota  ".$dataLaundry->id;
@@ -643,7 +643,7 @@ Terimakasih
             }
 
             // Ubah detail customer (inden)
-            $execute = CustomerQB::update($request->header('id_user'), $request->uuid_customer, $dataCustomer);
+            $execute = CustomerQB::update($request->header('id_user'), $request->uuid_customer, $dataCustomer); 
             if (!$execute) {
                 DB::rollBack();
                 return makeReturnJson(false, "Maaf, gagal mengubah data inden customer", 200, "8d9ec18e-c976-11ec-9d64-0242ac120002");
@@ -657,7 +657,7 @@ Terimakasih
             }
             
             DB::commit();
-            return makeReturnJson(true, "Detail Laundry berhasil diubah", 200);
+            return makeReturnJson(true, "Inden Batal Digunakan", 200);
         } catch (\Exception $e) {
             return makeReturnJson(false, $e->getMessage());
         }
