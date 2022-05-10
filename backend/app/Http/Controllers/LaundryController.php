@@ -238,7 +238,7 @@ class LaundryController extends Controller
             }
 
             // insert task & history
-            foreach ($dataTask as $rows) {
+            foreach ($dataTask as $rows) { 
             $row = json_decode($rows,true);  
                 $uuid_task_history = Uuid::uuid4()->toString();
                 $dataHistory = [
@@ -428,8 +428,7 @@ harga:  Rp. " . number_format($val->harga,0,',','.')."/".$val->uom."
 
         $message .= "
 Total Harga : Rp. ".number_format($totalNominal,0,',','.')."
-Status Bayar : ".$statusBayar." 
-Status : On Progress
+Status Bayar : ".$statusBayar."  
 
 Status Pengerjaan Cucian bisa di cek disini
 https://sinarcleanlaundry.com/?".$dataLaundry->uuid_laundry."
