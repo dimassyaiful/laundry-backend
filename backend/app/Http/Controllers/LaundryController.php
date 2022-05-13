@@ -417,6 +417,7 @@ Tanggal: ".date('d/m/Y', strtotime($dataLaundry->tanggal_masuk));
 Jenis: ".$val->jenis_laundry."
 Jumlah: ".$val->jumlah." ".$val->uom."
 harga:  Rp. " . number_format($val->harga,0,',','.')."/".$val->uom."
+Total:  Rp. " . number_format($val->total_harga,0,',','.') ."
 ---------------------";
         $totalNominal += $val->total_harga;
         }
@@ -425,7 +426,14 @@ harga:  Rp. " . number_format($val->harga,0,',','.')."/".$val->uom."
         if($dataLaundry->status_bayar==10){
             $statusBayar = 'Lunas';
         }
-
+ 
+        if($dataLaundry->potongan_inden !== '0.00'){
+            $indenn = $dataLaundry->potongan_inden;
+            $totalNominal = $totalNominal - $indenn;
+            $message .= "
+Inden : Rp. -".number_format($indenn,0,',','.')."";
+        }
+        
         $message .= "
 Total Harga : Rp. ".number_format($totalNominal,0,',','.')."
 Status Bayar : ".$statusBayar."  
@@ -483,6 +491,7 @@ Tanggal: ".date('d/m/Y', strtotime($dataLaundry->tanggal_masuk));
 Jenis: ".$val->jenis_laundry."
 Jumlah: ".$val->jumlah." ".$val->uom."
 harga:  Rp. " . number_format($val->harga,0,',','.')."/".$val->uom."
+Total:  Rp. " . number_format($val->total_harga,0,',','.') ."
 ---------------------";
         $totalNominal += $val->total_harga;
         }
@@ -490,6 +499,13 @@ harga:  Rp. " . number_format($val->harga,0,',','.')."/".$val->uom."
         $statusBayar = 'Belum Lunas';
         if($dataLaundry->status_bayar==10){
             $statusBayar = 'Lunas';
+        } 
+        
+        if($dataLaundry->potongan_inden !== '0.00'){
+            $indenn = $dataLaundry->potongan_inden;
+            $totalNominal = $totalNominal - $indenn;
+            $message .= "
+Inden : Rp. -".number_format($indenn,0,',','.')."";
         }
 
         $message .= "
